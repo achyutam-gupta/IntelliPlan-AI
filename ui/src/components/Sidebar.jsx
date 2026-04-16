@@ -22,7 +22,7 @@ export default function Sidebar({ active }) {
     { id: 'test-cases', icon: <IconSearch />, label: 'Test Cases', path: '/test-cases' },
     { id: 'code-gen', icon: <IconCode />, label: 'Code Generation', path: '/code-gen' },
     { id: 'coverage', icon: <IconCoverage />, label: 'Coverage', path: '/coverage' },
-    // Removed Settings from this list as per prompt 'till settings page' but we will see
+    { id: 'settings', icon: <IconSettings />, label: 'Settings', path: '/settings' },
   ];
 
   return (
@@ -44,12 +44,36 @@ export default function Sidebar({ active }) {
         ))}
       </nav>
       <div className="sidebar-footer" style={{padding: '1.5rem 1rem'}}>
-        <div className="user-pill" style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-          <img src="https://i.pravatar.cc/150?u=alex" alt="Alex Chen" style={{width: '36px', height: '36px', borderRadius: '50%'}} />
-          <div className="user-details" style={{display: 'flex', flexDirection: 'column'}}>
-            <span className="name" style={{color: 'white', fontSize: '0.9rem', fontWeight: 500}}>Alex Chen</span>
-            <span className="role" style={{color: '#6b7280', fontSize: '0.75rem'}}>Lead QA Architect</span>
+        <div className="user-pill" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+            <img src="https://i.pravatar.cc/150?u=current_user" alt="User Profile" style={{width: '36px', height: '36px', borderRadius: '50%'}} />
+            <div className="user-details" style={{display: 'flex', flexDirection: 'column'}}>
+              <span className="name" style={{color: 'white', fontSize: '0.9rem', fontWeight: 500}}>
+                {localStorage.getItem('user_name') || sessionStorage.getItem('user_name') || 'IntelliPlan Admin'}
+              </span>
+              <span className="role" style={{color: '#6b7280', fontSize: '0.75rem'}}>Lead QA Architect</span>
+            </div>
           </div>
+          <button 
+            onClick={() => {
+              sessionStorage.clear();
+              localStorage.clear();
+              navigate('/login');
+            }} 
+            style={{
+              background: 'transparent', border: 'none', color: '#ef4444', 
+              cursor: 'pointer', padding: '8px', borderRadius: '8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'background 0.2s'
+            }}
+            title="Logout"
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

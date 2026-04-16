@@ -58,9 +58,9 @@ export function Footer() {
             © {new Date().getFullYear()} IntelliPlan AI. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Twitter</a>
-            <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">GitHub</a>
-            <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">LinkedIn</a>
+            <a href="https://medium.com/@gupta.achyutam" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Medium</a>
+            <a href="https://github.com/achyutam-gupta" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">GitHub</a>
+            <a href="https://www.linkedin.com/in/achyutam-gupta/" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">LinkedIn</a>
             <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Discord</a>
           </div>
         </div>

@@ -9,6 +9,7 @@ export default function LoginPage() {
   const handleLogin = (e) => {
     e.preventDefault();
     sessionStorage.removeItem('guestMode');
+    sessionStorage.setItem('user_name', formData.email.split('@')[0]);
     navigate('/dashboard');
   };
 

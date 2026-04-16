@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster, toast } from 'sonner';
+import { testOllamaConnection, testGroqConnection, testGrokConnection, testOpenAIConnection } from './lib/llmHandshake';
 import LandingPage from './pages/LandingPage';
 import RegistrationPage from './pages/RegistrationPage';
 import LoginPage from './pages/LoginPage';
@@ -17,25 +19,38 @@ import './index.css';
 import './App.css';
 
 function App() {
+  // Ensure global credentials are set automatically from .env
+  useEffect(() => {
+    localStorage.setItem("llm_provider", import.meta.env.VITE_LLM_PROVIDER || "Groq");
+    localStorage.setItem("llm_model", import.meta.env.VITE_LLM_MODEL || "openai/gpt-oss-120b");
+    localStorage.setItem("llm_groqKey", import.meta.env.VITE_GROQ_API_KEY || "");
+    localStorage.setItem("jira_url", import.meta.env.VITE_JIRA_URL || "");
+    localStorage.setItem("jira_email", import.meta.env.VITE_JIRA_EMAIL || "");
+    localStorage.setItem("jira_token", import.meta.env.VITE_JIRA_TOKEN || "");
+  }, []);
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/register" element={<RegistrationPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/url-analyzer" element={<URLAnalyzer />} />
-        <Route path="/user-stories" element={<UserStories />} />
-        <Route path="/test-plan" element={<TestPlan />} />
-        <Route path="/test-scenarios" element={<TestScenarios />} />
-        <Route path="/test-cases" element={<TestCases />} />
-        <Route path="/code-gen" element={<CodeGen />} />
-        <Route path="/coverage" element={<Coverage />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/test-case-generator" element={<Navigate to="/test-cases" />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Router>
+    <>
+      <Toaster position="top-right" richColors />
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/register" element={<RegistrationPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/url-analyzer" element={<URLAnalyzer />} />
+          <Route path="/user-stories" element={<UserStories />} />
+          <Route path="/test-plan" element={<TestPlan />} />
+          <Route path="/test-scenarios" element={<TestScenarios />} />
+          <Route path="/test-cases" element={<TestCases />} />
+          <Route path="/code-gen" element={<CodeGen />} />
+          <Route path="/coverage" element={<Coverage />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/test-case-generator" element={<Navigate to="/test-cases" />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 

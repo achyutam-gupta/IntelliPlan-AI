@@ -1,0 +1,113 @@
+
+> ui@0.0.0 lint
+> eslint .
+
+
+C:\Users\Achyutam\OneDrive\Desktop\AI learning\IntelliPlan.AI\ui\src\lib\llmHandshake.js
+  43:52  error  'model' is defined but never used  no-unused-vars
+
+C:\Users\Achyutam\OneDrive\Desktop\AI learning\IntelliPlan.AI\ui\src\pages\Settings.jsx
+   87:9   error    'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-unused-vars
+  108:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  106 |     // Effect to bind primary provider model
+  107 |     if (!PROVIDER_MODELS[provider]?.includes(model)) {
+> 108 |       setModel(PROVIDER_MODELS[provider]?.[0] || 'llama3:latest');
+      |       ^^^^^^^^ Avoid calling setState() directly within an effect
+  109 |     }
+  110 |   }, [provider]);
+  111 |                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/set-state-in-effect
+  110:6   warning  React Hook useEffect has a missing dependency: 'model'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          react-hooks/exhaustive-deps
+  298:16  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  296 |
+  297 |               {/* OpenAI Card */}
+> 298 |               <ProviderCard
+      |                ^^^^^^^^^^^^ This component is created during render
+  299 |                 name="OpenAI" icon={<Target />} isCloud={true}
+  300 |                 modelVal={model} setModelVal={setModel}
+  301 |                 modelsList={PROVIDER_MODELS['OpenAI']}
+
+  167 |   };
+  168 |
+> 169 |   const ProviderCard = ({ name, icon, isCloud, modelVal, setModelVal, modelsList, secretVal, setSecretVal, secretLabel, secretPlaceholder, isUrl = false }) => {
+      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |     const isAct = provider === name;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |     const stat = statuses[name] || 'INACTIVE';
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 243 |     );
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 244 |   };
+      | ^^^^ The component is created during render here
+  245 |
+  246 |   return (
+  247 |     <div style={{ display: 'flex', height: '100vh', background: '#080c14', color: THEME.text, fontFamily: '"Inter", sans-serif', overflow: 'hidden' }}>      react-hooks/static-components
+  308:16  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  306 |
+  307 |               {/* Groq Card */}
+> 308 |               <ProviderCard
+      |                ^^^^^^^^^^^^ This component is created during render
+  309 |                 name="Groq" icon={<Zap />} isCloud={true}
+  310 |                 modelVal={model} setModelVal={setModel}
+  311 |                 modelsList={PROVIDER_MODELS['Groq']}
+
+  167 |   };
+  168 |
+> 169 |   const ProviderCard = ({ name, icon, isCloud, modelVal, setModelVal, modelsList, secretVal, setSecretVal, secretLabel, secretPlaceholder, isUrl = false }) => {
+      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |     const isAct = provider === name;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |     const stat = statuses[name] || 'INACTIVE';
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 243 |     );
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 244 |   };
+      | ^^^^ The component is created during render here
+  245 |
+  246 |   return (
+  247 |     <div style={{ display: 'flex', height: '100vh', background: '#080c14', color: THEME.text, fontFamily: '"Inter", sans-serif', overflow: 'hidden' }}>               react-hooks/static-components
+  318:16  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  316 |
+  317 |               {/* Ollama Card */}
+> 318 |               <ProviderCard
+      |                ^^^^^^^^^^^^ This component is created during render
+  319 |                 name="Ollama" icon={<HardDrive />} isCloud={false}
+  320 |                 modelVal={model} setModelVal={setModel}
+  321 |                 modelsList={PROVIDER_MODELS['Ollama']}
+
+  167 |   };
+  168 |
+> 169 |   const ProviderCard = ({ name, icon, isCloud, modelVal, setModelVal, modelsList, secretVal, setSecretVal, secretLabel, secretPlaceholder, isUrl = false }) => {
+      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |     const isAct = provider === name;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 171 |     const stat = statuses[name] || 'INACTIVE';
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 243 |     );
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 244 |   };
+      | ^^^^ The component is created during render here
+  245 |
+  246 |   return (
+  247 |     <div style={{ display: 'flex', height: '100vh', background: '#080c14', color: THEME.text, fontFamily: '"Inter", sans-serif', overflow: 'hidden' }}>  react-hooks/static-components
+
+✖ 7 problems (6 errors, 1 warning)
+
