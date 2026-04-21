@@ -18,7 +18,7 @@ Today's session focused on **Platform Centralization** and **Intelligence Infras
 
 ## Versioning & Deployment
 - **Platform Version**: Bumped to `v0.1.0` (Intelligence Upgrade).
-- **Git State**: All surgical UI remediation and architectural documents have been staged and committed.
+- **Git State**: All surgical UI remediation and architectural documents have been staged and committed. **Note**: Local brain and scratch directories are now clinicaly ignored for security.
 
 ## Roadmap for Next Session
 1. **Dynamic Scanner**: Implement `tools/url_scanner.py` using Playwright.

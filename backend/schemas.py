@@ -62,5 +62,8 @@ class URLAnalysisResponse(BaseModel):
     techStack: Optional[list] = []
     features: Optional[list] = []
     domPreview: Optional[str] = None
+    playwrightCode: Optional[str] = None
+    scenarios: Optional[list] = []
+    risks: Optional[list] = []
     confidence: Optional[str] = "90%"
     message: Optional[str] = None

@@ -21,8 +21,8 @@ const Ic = {
 };
 
 /* ─── Color maps ─── */
-const PRIO_C = { Critical:'#ef4444', High:'#f97316', Medium:'#a78bfa', Low:'#64748b' };
-const TYPE_C = { Functional:'#60a5fa', Security:'#10b981', Regression:'#a78bfa', API:'#c084fc', Smoke:'#f97316', UAT:'#fb7185', Negative:'#f59e0b', 'Edge Case':'#fb7185', Performance:'#06b6d4' };
+const PRIO_C = { Critical:'#ef4444', High:'#f97316', Medium:'#3b82f6', Low:'#64748b' };
+const TYPE_C = { Functional:'#60a5fa', Security:'#10b981', Regression:'#3b82f6', API:'#60a5fa', Smoke:'#f97316', UAT:'#fb7185', Negative:'#f59e0b', 'Edge Case':'#fb7185', Performance:'#06b6d4' };
 
 export default function TestCases() {
   const navigate = useNavigate();
@@ -42,15 +42,28 @@ export default function TestCases() {
   const tpData      = JSON.parse(sessionStorage.getItem('tp_data')      || 'null');
 
   /* ── State ── */
-  const [cases, setCases]           = useState(() => JSON.parse(sessionStorage.getItem('tc_cases') || '[]'));
-  const [selected, setSelected]     = useState(() => new Set(JSON.parse(sessionStorage.getItem('tc_selected') || '[]')));
-  const [generating, setGen]        = useState(false);
-  const [generated, setGenerated]   = useState(() => JSON.parse(sessionStorage.getItem('tc_generated') || 'false'));
+  const [cases, setCases] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem('tc_cases') || '[]'); } catch { return []; }
+  });
+  
+  const [selected, setSelected] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('tc_selected');
+      const parsed = JSON.parse(stored || '[]');
+      return new Set(Array.isArray(parsed) ? parsed : []);
+    } catch { return new Set(); }
+  });
+
+  const [generating, setGen] = useState(false);
+  const [generated, setGenerated] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem('tc_generated') || 'false'); } catch { return false; }
+  });
+
   const [expanded, setExpanded]     = useState(null);
   const [searchQ, setSearchQ]       = useState('');
   const [filterPrio, setFilterPrio] = useState('All');
   const [filterType, setFilterType] = useState('All');
-  const [syncing, setSyncing] = useState(false);
+  const [syncing, setSyncing]       = useState(false);
 
   const handleSyncJira = async () => {
     const selectedCases = cases.filter(c => selected.has(c.id));
@@ -82,9 +95,17 @@ export default function TestCases() {
 
         const syncContent = `AI-Generated Test Case: ${tc.title}\nID: ${tc.id}\nPriority: ${tc.priority}\n\nSteps:\n${(tc.steps||[]).map(s => `${s.step}. ${s.action} -> ${s.expected}`).join('\n')}`;
 
-        const res = await fetch(`/api/jira/rest/api/3/issue/${key}/comment`, {
+        const jiraBase = localStorage.getItem('jira_url')?.replace(/\/$/, '');
+        if (!jiraBase) throw new Error("Jira URL missing in Settings.");
+
+        const res = await fetch(`/api/v1/integrations/jira/rest/api/3/issue/${key}/comment`, {
           method: 'POST',
-          headers: { Authorization: `Basic ${encoded}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+          headers: { 
+            Authorization: `Basic ${encoded}`, 
+            'Content-Type': 'application/json', 
+            Accept: 'application/json',
+            'x-target-base-url': jiraBase
+          },
           body: JSON.stringify({
             body: { type: "doc", version: 1, content: [{ type: "paragraph", content: [{ type: "text", text: syncContent }] }] }
           })
@@ -255,7 +276,7 @@ export default function TestCases() {
                 <span style={{ fontSize:'0.7rem',fontWeight:700,color:'#64748b' }}>SOURCE CONTEXT</span>
               </div>
               <div style={{ padding:'1rem' }}>
-                <div style={{ fontSize:'1.1rem',fontWeight:800,color:'#a78bfa' }}>{activeScenarios.length}</div>
+                <div style={{ fontSize:'1.1rem',fontWeight:800,color:'#60a5fa' }}>{activeScenarios.length}</div>
                 <div style={{ fontSize:'0.65rem',color:'#64748b' }}>Active Scenarios</div>
                 <button onClick={handleGenerate} disabled={generating} style={{ width:'100%',marginTop:'1rem',background:'linear-gradient(135deg,#60a5fa,#3b82f6)',border:'none',padding:'0.75rem',borderRadius:'8px',color:'white',fontWeight:700,cursor:'pointer' }}>
                   {generating ? 'Generating...' : 'Generate Test Cases'}

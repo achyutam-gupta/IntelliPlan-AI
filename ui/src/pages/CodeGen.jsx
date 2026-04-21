@@ -27,9 +27,9 @@ export default function CodeGeneration() {
     setTcCases(cases);
     
     // Pick the selected case if it exists, otherwise pick the first one
-    const selectedId = sessionStorage.getItem('tc_selected');
-    if (selectedId && cases.some(c => c.id === selectedId)) {
-      setSelectedCaseId(selectedId);
+    const activeId = sessionStorage.getItem('tc_active_case');
+    if (activeId && cases.some(c => c.id === activeId)) {
+      setSelectedCaseId(activeId);
     } else if (cases.length > 0) {
       setSelectedCaseId(cases[0].id);
     }
@@ -43,7 +43,7 @@ export default function CodeGeneration() {
   // Sync selection to session
   useEffect(() => {
     if (selectedCaseId) {
-      sessionStorage.setItem('tc_selected', selectedCaseId);
+      sessionStorage.setItem('tc_active_case', selectedCaseId);
     }
   }, [selectedCaseId]);
 
@@ -166,7 +166,7 @@ Provide the generated code in a strict JSON format as specified in the template.
                 <button onClick={handleSave} style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#10b981', padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
                   Save
                 </button>
-                <button onClick={handleShare} style={{ background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', color: '#a78bfa', padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
+                <button onClick={handleShare} style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', color: '#60a5fa', padding: '0.6rem 1.2rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
                   Share
                 </button>
               </div>
@@ -192,13 +192,13 @@ Provide the generated code in a strict JSON format as specified in the template.
                         key={tc.id}
                         onClick={() => setSelectedCaseId(tc.id)}
                         style={{
-                          background: selectedCaseId === tc.id ? 'rgba(99, 102, 241, 0.1)' : 'rgba(15, 23, 42, 0.4)',
-                          border: `1px solid ${selectedCaseId === tc.id ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255,255,255,0.03)'}`,
+                          background: selectedCaseId === tc.id ? 'rgba(59, 130, 246, 0.1)' : 'rgba(15, 23, 42, 0.4)',
+                          border: `1px solid ${selectedCaseId === tc.id ? 'rgba(59, 130, 246, 0.3)' : 'rgba(255,255,255,0.03)'}`,
                           padding: '1rem', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s'
                         }}
                       >
                         <div style={{fontSize: '0.65rem', color: '#64748b', marginBottom: '0.25rem', fontWeight: 700}}>{tc.id}</div>
-                        <h4 style={{margin: 0, fontSize: '0.9rem', color: selectedCaseId === tc.id ? '#818cf8' : '#e2e8f0', fontWeight: 600, lineHeight: 1.4}}>{tc.title}</h4>
+                        <h4 style={{margin: 0, fontSize: '0.9rem', color: selectedCaseId === tc.id ? '#60a5fa' : '#e2e8f0', fontWeight: 600, lineHeight: 1.4}}>{tc.title}</h4>
                       </div>
                     ))
                   ) : (
@@ -243,7 +243,7 @@ Provide the generated code in a strict JSON format as specified in the template.
                   disabled={isGenerating || !activeCase}
                   style={{
                     width: '100%', marginTop: '2rem', padding: '1rem', borderRadius: '12px',
-                    background: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)',
+                    background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
                     color: 'white', border: 'none', fontWeight: 700, fontSize: '0.95rem',
                     cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
                     boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)', opacity: (isGenerating || !activeCase) ? 0.6 : 1
@@ -392,7 +392,7 @@ Provide the generated code in a strict JSON format as specified in the template.
                       <span style={{color: '#e2e8f0', fontWeight: 700}}>{generatedData?.metrics.complexity || '--'}</span>
                     </div>
                     <div style={{height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px'}}>
-                      <div style={{width: generatedData ? '65%' : '0%', height: '100%', background: '#c084fc', borderRadius: '3px', transition: 'width 1s ease'}}></div>
+                      <div style={{width: generatedData ? '65%' : '0%', height: '100%', background: '#60a5fa', borderRadius: '3px', transition: 'width 1s ease'}}></div>
                     </div>
                   </div>
 
@@ -449,7 +449,7 @@ Provide the generated code in a strict JSON format as specified in the template.
           style={{
             position: 'absolute', bottom: '2.5rem', right: '2.5rem', 
             width: '60px', height: '60px', borderRadius: '50%', 
-            background: 'linear-gradient(135deg, #818cf8 0%, #3b82f6 100%)', 
+            background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)', 
             color: 'white', border: 'none', display: 'flex', alignItems: 'center', 
             justifyContent: 'center', cursor: 'pointer', 
             boxShadow: '0 10px 30px -5px rgba(59, 130, 246, 0.5)',

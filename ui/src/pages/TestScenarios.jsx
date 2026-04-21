@@ -21,9 +21,9 @@ const Ic = {
 };
 
 /* ─── Color maps ─── */
-const PRIO_C   = { Critical:'#ef4444', High:'#f97316', Medium:'#a78bfa', Low:'#64748b', P0:'#ef4444', P1:'#f97316', P2:'#a78bfa', P3:'#64748b' };
-const TYPE_C   = { Functional:'#60a5fa', Security:'#10b981', Integration:'#c084fc', Negative:'#f59e0b', 'Edge Case':'#fb7185', Performance:'#06b6d4', API:'#c084fc', UX:'#fb7185', Regression:'#64748b' };
-const STATUS_C = { Draft:'#94a3b8', Reviewed:'#818cf8', Approved:'#10b981', Blocked:'#ef4444' };
+const PRIO_C   = { Critical:'#ef4444', High:'#f97316', Medium:'#3b82f6', Low:'#64748b', P0:'#ef4444', P1:'#f97316', P2:'#3b82f6', P3:'#64748b' };
+const TYPE_C   = { Functional:'#3b82f6', Security:'#10b981', Integration:'#3b82f6', Negative:'#f59e0b', 'Edge Case':'#fb7185', Performance:'#06b6d4', API:'#3b82f6', UX:'#fb7185', Regression:'#64748b' };
+const STATUS_C = { Draft:'#94a3b8', Reviewed:'#60a5fa', Approved:'#10b981', Blocked:'#ef4444' };
 
 export default function TestScenarios() {
   const navigate = useNavigate();
@@ -215,7 +215,7 @@ JSON FORMATTING RULES:
               <span style={{ color:'#64748b',fontSize:'0.75rem',fontWeight:600 }}>Step 4 of 8</span>
               <div style={{ display:'flex',gap:'4px' }}>
                 {Array.from({length:8},(_,i)=>(
-                  <div key={i} style={{ width:i===3?'24px':'16px',height:'4px',borderRadius:'2px',background:i<=2?'#10b981':i===3?'#a78bfa':'rgba(255,255,255,0.08)' }}/>
+                  <div key={i} style={{ width:i===3?'24px':'16px',height:'4px',borderRadius:'2px',background:i<=2?'#10b981':i===3?'#60a5fa':'rgba(255,255,255,0.08)' }}/>
                 ))}
               </div>
             </div>
@@ -295,13 +295,13 @@ JSON FORMATTING RULES:
                   style={{
                     width:'100%',
                     background: generating
-                      ? 'rgba(139,92,246,0.2)'
-                      : 'linear-gradient(135deg,#a78bfa,#7c3aed)',
+                      ? 'rgba(59,130,246,0.2)'
+                      : 'linear-gradient(135deg,#60a5fa,#3b82f6)',
                     border:'none', padding:'0.7rem', borderRadius:'8px', color:'white',
                     fontWeight:700, fontSize:'0.85rem',
                     cursor: (generating || (!activeStories.length && !tpData)) ? 'not-allowed' : 'pointer',
                     display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
-                    boxShadow: generating ? 'none' : '0 4px 14px rgba(139,92,246,0.35)'
+                    boxShadow: generating ? 'none' : '0 4px 14px rgba(59,130,246,0.35)'
                   }}
                 >
                   {generating ? <Ic.Loader/> : <IconSparkles/>}
@@ -311,12 +311,12 @@ JSON FORMATTING RULES:
             </div>
 
             {/* AI Insight */}
-            <div style={{ background:'rgba(139,92,246,0.07)',border:'1px solid rgba(139,92,246,0.2)',borderRadius:'10px',padding:'1rem 1.1rem' }}>
+            <div style={{ background:'rgba(59,130,246,0.07)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:'10px',padding:'1rem 1.1rem' }}>
               <div style={{ display:'flex',gap:'8px',alignItems:'flex-start' }}>
-                <div style={{ color:'#a78bfa',flexShrink:0 }}><IconSparkles/></div>
+                <div style={{ color:'#60a5fa',flexShrink:0 }}><IconSparkles/></div>
                 <div>
-                  <div style={{ fontSize:'0.7rem',fontWeight:700,letterSpacing:'0.06em',color:'#a78bfa',marginBottom:'4px' }}>AI INSIGHT</div>
-                  <p style={{ margin:'0 0 8px',fontSize:'0.76rem',color:'#c4b5fd',lineHeight:1.5 }}>
+                  <div style={{ fontSize:'0.7rem',fontWeight:700,letterSpacing:'0.06em',color:'#60a5fa',marginBottom:'4px' }}>AI INSIGHT</div>
+                  <p style={{ margin:'0 0 8px',fontSize:'0.76rem',color:'#93c5fd',lineHeight:1.5 }}>
                     {scenarios.length > 0
                       ? <>
                           <strong>{scenarios.length}</strong> scenarios derived covering <strong>{linkedStories.length}</strong> stories. <strong>{highPrioCount}</strong> high-priority paths identified. Story coverage: <strong>{coveragePct}%</strong>.
@@ -329,7 +329,7 @@ JSON FORMATTING RULES:
                   )}
                   {generated && scenarios.length > 0 && (
                     <div style={{ display:'flex',gap:'6px',marginTop:'8px' }}>
-                      <button onClick={selectAll} style={{ ...btn('#a78bfa'),fontSize:'0.7rem' }}>Auto Select All</button>
+                      <button onClick={selectAll} style={{ ...btn('#3b82f6'),fontSize:'0.7rem' }}>Auto Select All</button>
                     </div>
                   )}
                 </div>
@@ -356,7 +356,7 @@ JSON FORMATTING RULES:
                 <div style={{ display:'flex',gap:'6px' }}>
                   <button onClick={() => toast.success("Scenario state saved.")} style={btn('#10b981')}><Ic.Save/>Save</button>
                   <button onClick={handleExport} style={btn('#60a5fa')}><Ic.Export/>Export</button>
-                  <button onClick={handleShare} style={{ ...btn('#a78bfa'), display:'flex', alignItems:'center', gap:'6px' }}><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
+                  <button onClick={handleShare} style={{ ...btn('#3b82f6'), display:'flex', alignItems:'center', gap:'6px' }}><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
                   <button onClick={handleGenerate} disabled={generating} style={{ ...btn('#f97316') }}><Ic.Refresh/>Regen</button>
                 </div>
               )}
@@ -402,7 +402,7 @@ JSON FORMATTING RULES:
                   return (
                     <div key={sc.id} style={{
                       ...card,
-                      border:`1px solid ${isSelected ? 'rgba(139,92,246,0.5)' : 'rgba(255,255,255,0.07)'}`,
+                      border:`1px solid ${isSelected ? 'rgba(59,130,246,0.5)' : 'rgba(255,255,255,0.07)'}`,
                       transition:'border .2s, background .2s',
                       background: isSelected ? 'rgba(15,23,55,0.8)' : 'rgba(15,23,42,0.7)'
                     }}>
@@ -412,7 +412,7 @@ JSON FORMATTING RULES:
                         <div style={{
                           width:'18px',height:'18px',borderRadius:'5px',
                           border: isSelected ? 'none' : '2px solid rgba(255,255,255,0.2)',
-                          background: isSelected ? '#7c3aed' : 'transparent',
+                          background: isSelected ? '#3b82f6' : 'transparent',
                           display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:'2px'
                         }}>
                           {isSelected && <Ic.Check/>}
@@ -422,7 +422,7 @@ JSON FORMATTING RULES:
                         <div style={{ flex:1,minWidth:0 }}>
                           {/* Badge row */}
                           <div style={{ display:'flex',alignItems:'center',gap:'6px',marginBottom:'6px',flexWrap:'wrap' }}>
-                            <span style={{ fontSize:'0.7rem',fontWeight:700,color:'#a78bfa',background:'rgba(139,92,246,0.1)',border:'1px solid rgba(139,92,246,0.2)',padding:'2px 8px',borderRadius:'6px' }}>{sc.id}</span>
+                            <span style={{ fontSize:'0.7rem',fontWeight:700,color:'#3b82f6',background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.2)',padding:'2px 8px',borderRadius:'6px' }}>{sc.id}</span>
                             <span style={{ ...tag(PRIO_C[sc.priority]||'#64748b') }}>{sc.priority}</span>
                             <span style={{ ...tag(TYPE_C[sc.type]||'#94a3b8') }}>{sc.type}</span>
                             {sc.linkedStory && (
@@ -467,7 +467,7 @@ JSON FORMATTING RULES:
                                     display:'flex',gap:'10px',padding:'0.45rem 1rem',alignItems:'flex-start',
                                     borderBottom: i < sc.testConditions.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none'
                                   }}>
-                                    <span style={{ fontSize:'0.7rem',fontWeight:700,color:'#a78bfa',flexShrink:0,width:'45px',marginTop:'2px' }}>{tc.conditionId}</span>
+                                    <span style={{ fontSize:'0.7rem',fontWeight:700,color:'#3b82f6',flexShrink:0,width:'45px',marginTop:'2px' }}>{tc.conditionId}</span>
                                     <span style={{ fontSize:'0.78rem',color:'#e2e8f0',flex:1,lineHeight:1.4 }}>{tc.condition}</span>
                                     <span style={{ fontSize:'0.75rem',color:'#10b981',flexShrink:0,maxWidth:'200px',lineHeight:1.4 }}>→ {tc.expectedOutcome}</span>
                                   </div>
@@ -534,7 +534,7 @@ JSON FORMATTING RULES:
               <div style={{ padding:'0.75rem 1rem',borderBottom:'1px solid rgba(255,255,255,0.05)',fontSize:'0.66rem',fontWeight:700,letterSpacing:'0.07em',color:'#64748b' }}>SCENARIO METRICS</div>
               <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'rgba(255,255,255,0.05)' }}>
                 {[
-                  { label:'Total',     val:scenarios.length,       color:'#a78bfa' },
+                  { label:'Total',     val:scenarios.length,       color:'#3b82f6' },
                   { label:'Selected',  val:selected.size,          color:'#60a5fa' },
                   { label:'High Prio', val:highPrioCount,          color:'#ef4444' },
                   { label:'Coverage',  val:coveragePct+'%',        color:'#10b981' },
@@ -542,8 +542,8 @@ JSON FORMATTING RULES:
                   { label:'Stories',   val:linkedStories.length,   color:'#06b6d4' },
                 ].map((m,i)=>(
                   <div key={i} style={{ padding:'0.75rem 0.85rem',background:'rgba(15,23,42,0.7)' }}>
-                    <div style={{ fontSize:'1.2rem',fontWeight:800,color:m.color }}>{m.val}</div>
-                    <div style={{ fontSize:'0.62rem',color:'#475569',fontWeight:600,marginTop:'1px' }}>{m.label}</div>
+                    <div style={{ fontSize:'1.4rem',fontWeight:800,color:m.color }}>{m.val}</div>
+                    <div style={{ fontSize:'0.65rem',color:'#64748b',fontWeight:600,marginTop:'1px' }}>{m.label}</div>
                   </div>
                 ))}
               </div>
@@ -590,7 +590,7 @@ JSON FORMATTING RULES:
             <div style={card}>
               <div style={{ padding:'0.75rem 1rem',borderBottom:'1px solid rgba(255,255,255,0.05)',fontSize:'0.66rem',fontWeight:700,letterSpacing:'0.07em',color:'#64748b' }}>EXPORT</div>
               <div style={{ padding:'0.75rem 1rem',display:'flex',flexDirection:'column',gap:'0.45rem' }}>
-                {[['Export CSV','#10b981'],['Export PDF','#60a5fa'],['Sync to Jira','#f97316'],['→ Test Cases','#a78bfa']].map(([l,c])=>(
+                {[['Export CSV','#10b981'],['Export PDF','#60a5fa'],['Sync to Jira','#f97316'],['→ Test Cases','#3b82f6']].map(([l,c])=>(
                   <button
                     key={l}
                     onClick={l.includes('Test Cases') ? ()=>navigate('/test-cases') : undefined}
@@ -628,10 +628,10 @@ JSON FORMATTING RULES:
                 }}
                 style={{
                   display:'flex',alignItems:'center',gap:'8px',
-                  background:'linear-gradient(135deg,#a78bfa,#7c3aed)',
+                  background:'linear-gradient(135deg,#60a5fa,#3b82f6)',
                   border:'none',padding:'0.65rem 1.5rem',borderRadius:'9px',
                   color:'white',fontWeight:700,fontSize:'0.88rem',cursor:'pointer',
-                  boxShadow:'0 4px 14px rgba(139,92,246,0.35)'
+                  boxShadow:'0 4px 14px rgba(59,130,246,0.35)'
                 }}
               >
                 Proceed to Test Cases <Ic.Send/>

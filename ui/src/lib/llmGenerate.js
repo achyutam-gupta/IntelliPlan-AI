@@ -117,7 +117,7 @@ async function executeProvider(provider, promptText, signal) {
 
   if (provider === 'Groq') {
     const activeModel = (model.includes('mistral') || model.includes('nvidia')) ? 'llama-3.3-70b-versatile' : model;
-    const res = await fetch('/api/llm/groq/chat/completions', {
+    const res = await fetch('/api/v1/integrations/llm/groq/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({ model: activeModel, messages: [{ role: 'user', content: promptText }] }),
@@ -131,7 +131,7 @@ async function executeProvider(provider, promptText, signal) {
   }
 
   if (provider === 'NVIDIA') {
-    const res = await fetch('/api/llm/nvidia/chat/completions', {
+    const res = await fetch('/api/v1/integrations/llm/nvidia/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       body: JSON.stringify({ model: 'mistralai/mistral-large-3-675b-instruct-2512', messages: [{ role: 'user', content: promptText }], max_tokens: 4096 }),
@@ -145,7 +145,7 @@ async function executeProvider(provider, promptText, signal) {
   }
 
   // OpenAI, Grok, etc.
-  const urlMap = { 'OpenAI': '/api/llm/openai/chat/completions', 'Grok': 'https://api.x.ai/v1/chat/completions' };
+  const urlMap = { 'OpenAI': '/api/v1/integrations/llm/openai/chat/completions', 'Grok': 'https://api.x.ai/v1/chat/completions' };
   if (urlMap[provider]) {
     const res = await fetch(urlMap[provider], {
       method: 'POST',

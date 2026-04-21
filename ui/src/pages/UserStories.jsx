@@ -26,13 +26,13 @@ const Ic = {
 
 /* ─── Shared styles ─── */
 const cardBox = { background:'rgba(15,23,42,0.7)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px' };
-const btn  = (accent) => ({ display:'flex',alignItems:'center',gap:'6px',border:`1px solid ${accent}30`,background:`${accent}10`,color:accent,padding:'0.45rem 0.85rem',borderRadius:'7px',fontSize:'0.78rem',fontWeight:600,cursor:'pointer' });
-const tag  = (c) => ({ background:`${c}15`,color:c,border:`1px solid ${c}25`,padding:'2px 9px',borderRadius:'10px',fontSize:'0.68rem',fontWeight:700 });
-const inputStyle = { background:'rgba(15,23,42,0.8)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',color:'white',outline:'none',padding:'0.5rem 0.8rem',fontSize:'0.82rem',width:'100%',boxSizing:'border-box' };
+const btn  = (accent) => ({ display:'flex',alignItems:'center',gap:'6px',border:`1px solid ${accent}30`,background:`${accent}10`,color:accent,padding:'0.42rem 0.85rem',borderRadius:'7px',fontSize:'0.76rem',fontWeight:600,cursor:'pointer' });
+const tag  = (c) => ({ background:`${c}15`,color:c,border:`1px solid ${c}25`,padding:'2px 9px',borderRadius:'10px',fontSize:'0.66rem',fontWeight:700 });
+const inputStyle = { background:'rgba(15,23,42,0.8)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'8px',color:'white',outline:'none',padding:'0.42rem 0.7rem',fontSize:'0.78rem',width:'100%',boxSizing:'border-box' };
 
 /* ─── Priority colors helper ─── */
-const PRIO_BADGE = { Critical:'#ef4444', High:'#f97316', Medium:'#a78bfa', Low:'#64748b' };
-const TYPE_BADGE = { Functional:'#60a5fa', Security:'#10b981', Negative:'#f59e0b', API:'#c084fc', UX:'#fb7185' };
+const PRIO_BADGE = { Critical:'#ef4444', High:'#f97316', Medium:'#3b82f6', Low:'#64748b' };
+const TYPE_BADGE = { Functional:'#60a5fa', Security:'#10b981', Negative:'#f59e0b', API:'#3b82f6', UX:'#fb7185' };
 
 export default function UserStories() {
   const navigate = useNavigate();
@@ -90,10 +90,18 @@ export default function UserStories() {
       if (!email || !token) throw new Error("Jira credentials not set in Settings.");
       const encoded = btoa(`${email}:${token}`);
       const match = importUrl.match(/\/browse\/([A-Z0-9-]+)/);
-      if (!match) throw new Error("Invalid Jira URL format. Must contain /browse/ISSUE-KEY");
+      const urlBaseMatch = importUrl.match(/^(https?:\/\/[^\/]+)/);
       
-      const res = await fetch(`/api/jira/rest/api/3/issue/${match[1]}`, {
-        headers: { Authorization: `Basic ${encoded}`, Accept: 'application/json' }
+      if (!match) throw new Error("Invalid Jira URL format. Must contain /browse/ISSUE-KEY");
+      if (!urlBaseMatch) throw new Error("Could not determine Jira base URL.");
+      
+      const targetBase = urlBaseMatch[1];
+      const res = await fetch(`/api/v1/integrations/jira/rest/api/3/issue/${match[1]}`, {
+        headers: { 
+          Authorization: `Basic ${encoded}`, 
+          Accept: 'application/json',
+          'x-target-base-url': targetBase
+        }
       });
       if (!res.ok) throw new Error(`Jira returned ${res.status}`);
       const data = await res.json();
@@ -179,6 +187,7 @@ UI MAPPING INSTRUCTIONS:
       }));
       setStories(enriched);
       setSelected(new Set(enriched.map(s => s.id))); // Auto-select all for immediate transition
+      setGenerated(true); // Track state for "Active" UI metrics
       toast.success('Successfully generated user stories!');
     } catch (err) {
       console.error(err);
@@ -235,11 +244,12 @@ UI MAPPING INSTRUCTIONS:
           {[
             { label:'Total Stories generated', val: stories.length, color:'#60a5fa' },
             { label:'High Priority Stories',  val: highPrio,       color:'#ef4444' },
-            { label:'Average AI Quality',     val: avgQuality+'%', color:'#10b981' }
+            { label:'Average AI Quality',     val: stories.length ? avgQuality+'%' : '0%', color:'#10b981' }
           ].map((m,i)=>(
-            <div key={i} style={{ ...cardBox, padding:'1rem 1.5rem', flex: 1, display:'flex', flexDirection:'column', gap:'4px' }}>
-              <div style={{ fontSize:'1.8rem',fontWeight:800,color:m.color }}>{m.val}</div>
-              <div style={{ fontSize:'0.75rem',color:'#94a3b8',fontWeight:600 }}>{m.label}</div>
+            <div key={i} style={{ ...cardBox, padding:'1rem 1.25rem', flex: 1, display:'flex', flexDirection:'column', gap:'4px' }}>
+              <div style={{ fontSize:'1.4rem',fontWeight:800,color:m.color }}>{m.val}</div>
+              <div style={{ fontSize:'0.7rem',color:'#64748b',fontWeight:600 }}>{m.label}</div>
+              {m.label === 'Average AI Quality' && stories.length > 0 && <div style={{ fontSize: '0.6rem', color: '#10b981', fontWeight: 700 }}>ACTIVE ENGINE</div>}
             </div>
           ))}
         </div>
@@ -303,8 +313,9 @@ UI MAPPING INSTRUCTIONS:
                         </button>
                     </div>
                     {fetchedJiraData && (
-                        <div style={{ marginTop:'0.75rem',background:'rgba(59,130,246,0.06)',border:'1px solid rgba(59,130,246,0.15)',borderRadius:'9px',padding:'0.65rem 1rem' }}>
-                          <div style={{ fontSize:'0.78rem',fontWeight:600,color:'#93c5fd' }}>{fetchedJiraData.key} Parsed</div>
+                        <div style={{ marginTop:'0.75rem',background:'rgba(16,185,129,0.06)',border:'1px solid rgba(16,185,129,0.2)',borderRadius:'9px',padding:'0.65rem 1rem', display:'flex', alignItems:'center', gap:'8px' }}>
+                          <div style={{ width:8, height:8, borderRadius:'50%', background:'#10b981', boxShadow:'0 0 8px #10b981' }}></div>
+                          <div style={{ fontSize:'0.78rem',fontWeight:600,color:'#10b981' }}>{fetchedJiraData.key} Synchronized</div>
                         </div>
                     )}
                 </div>
@@ -333,7 +344,7 @@ UI MAPPING INSTRUCTIONS:
               <div style={{ display:'flex', gap:'8px', marginRight:'1rem' }}>
                 <button onClick={() => toast.success("Stories state synchronized.")} style={btn('#10b981')}><Ic.Check/> Save</button>
                 <button onClick={handleExport} style={btn('#60a5fa')}><Ic.Export/> Export</button>
-                <button onClick={handleShare} style={btn('#a78bfa')}><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
+                <button onClick={handleShare} style={btn('#3b82f6')}><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
               </div>
               <button onClick={()=>{
                 const selectedData = stories.filter(s => selected.has(s.id));
@@ -403,7 +414,7 @@ UI MAPPING INSTRUCTIONS:
                             <div style={{ fontSize:'0.75rem',fontWeight:700,letterSpacing:'0.07em',color:'#475569',marginBottom:'0.75rem' }}>ACCEPTANCE CRITERIA (GHERKIN)</div>
                             {story.criteria?.map((c,ci)=>(
                               <div key={ci} style={{ background:'rgba(0,0,0,0.25)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:'8px',padding:'1rem',marginBottom:'0.75rem',fontFamily:'JetBrains Mono,monospace',fontSize:'0.8rem',lineHeight:1.7 }}>
-                                <div style={{ color:'#a78bfa',fontWeight:700,marginBottom:'8px' }}>Scenario: {c.scenario}</div>
+                                <div style={{ color:'#3b82f6',fontWeight:700,marginBottom:'8px' }}>Scenario: {c.scenario}</div>
                                 <div><span style={{ color:'#60a5fa', fontWeight:600, marginRight:'8px' }}>Given</span> <span style={{ color:'#e2e8f0' }}>{c.given}</span></div>
                                 <div><span style={{ color:'#10b981', fontWeight:600, marginRight:'8px' }}>When</span> <span style={{ color:'#e2e8f0' }}>{c.when}</span></div>
                                 <div><span style={{ color:'#f59e0b', fontWeight:600, marginRight:'8px' }}>Then</span> <span style={{ color:'#e2e8f0' }}>{c.then}</span></div>

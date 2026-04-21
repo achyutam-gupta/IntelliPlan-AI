@@ -9,7 +9,7 @@ import {
   Moon, Target, Plus, Download, HardDrive, Zap, Cpu
 } from 'lucide-react';
 import {
-  testOllamaConnection, testGroqConnection, testOpenAIConnection, testJiraConnection
+  testOllamaConnection, testGroqConnection, testOpenAIConnection, testJiraConnection, testNvidiaConnection
 } from '../lib/llmHandshake';
 
 const THEME = {
@@ -27,9 +27,10 @@ const THEME = {
 };
 
 const PROVIDER_MODELS = {
+  NVIDIA: ['mistralai/mistral-large-2411', 'mistralai/pixtral-12b-2409'],
+  Groq: ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768', 'llama-3.1-8b-instant'],
   Ollama: ['llama3:latest', 'mistral:latest', 'gemma2:latest'],
-  Groq: ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'mixtral-8x7b-32768'],
-  OpenAI: ['gpt-4o-latest', 'gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo'],
+  OpenAI: ['gpt-4o-latest', 'gpt-4o', 'gpt-4o-mini'],
 };
 
 // -- Custom Input Components
@@ -287,7 +288,50 @@ export default function Settings() {
             </div>
 
             {/* Layout Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 450px))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
+
+              {/* NVIDIA Primary Card */}
+              <ProviderCard 
+                name="NVIDIA" 
+                icon={<Cpu size={22} color={THEME.cyan} />} 
+                isCloud={true}
+                modelVal={model}
+                setModelVal={setModel}
+                modelsList={PROVIDER_MODELS.NVIDIA}
+                secretVal={nvidiaKey}
+                setSecretVal={setNvidiaKey}
+                secretLabel="NVIDIA API KEY"
+                secretPlaceholder="nvapi-..."
+              />
+
+              {/* Groq Failover Card */}
+              <ProviderCard 
+                name="Groq" 
+                icon={<Zap size={22} color="#f59e0b" />} 
+                isCloud={true}
+                modelVal={model}
+                setModelVal={setModel}
+                modelsList={PROVIDER_MODELS.Groq}
+                secretVal={groqKey}
+                setSecretVal={setGroqKey}
+                secretLabel="GROQ API KEY"
+                secretPlaceholder="gsk_..."
+              />
+
+              {/* Ollama Local Card */}
+              <ProviderCard 
+                name="Ollama" 
+                icon={<HardDrive size={22} color="#94a3b8" />} 
+                isCloud={false}
+                modelVal={model}
+                setModelVal={setModel}
+                modelsList={PROVIDER_MODELS.Ollama}
+                secretVal={ollamaUrl}
+                setSecretVal={setOllamaUrl}
+                secretLabel="LOCAL ENDPOINT"
+                secretPlaceholder="http://localhost:11434"
+                isUrl={true}
+              />
 
               {/* Jira Integration Card */}
               <div style={{
@@ -304,7 +348,15 @@ export default function Settings() {
                       <p style={{ margin: '4px 0 0', fontSize: '12px', color: THEME.textDim }}>Requirements & Story Ingestion</p>
                     </div>
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: THEME.textDim, border: `1px solid rgba(255,255,255,0.05)` }}>
+                  <span style={{ 
+                    fontSize: '11px', 
+                    fontWeight: 700, 
+                    padding: '4px 10px', 
+                    borderRadius: '6px', 
+                    background: statuses['Jira'] === 'ACTIVE' ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.05)',
+                    color: statuses['Jira'] === 'ACTIVE' ? THEME.success : THEME.textDim,
+                    border: `1px solid ${statuses['Jira'] === 'ACTIVE' ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.05)'}`
+                  }}>
                     {statuses['Jira'] || 'OPTIONAL'}
                   </span>
                 </div>

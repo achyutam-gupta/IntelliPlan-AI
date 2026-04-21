@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { IconSearch, IconSparkles, IconCoverage, IconStories, IconScenario, IconDashboard, IconAnalyze } from '../components/Icons';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { toast } from 'sonner';
 
 /* ─── Inline SVGs ─── */
 const Ic = {
@@ -60,8 +62,38 @@ export default function Coverage() {
    const partialCount = traceability.filter(t => t.status === 'Partial').length;
 
    /* ── Shared Styles ── */
-   const card = { background:'rgba(15,23,42,0.7)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', backdropFilter:'blur(12px)' };
-   const tag = (c) => ({ background:`${c}15`, color:c, border:`1px solid ${c}25`, padding:'2px 8px', borderRadius:'6px', fontSize:'0.65rem', fontWeight:700 });
+   const card = { 
+      background: 'rgba(15, 23, 42, 0.6)', 
+      border: '1px solid rgba(255, 255, 255, 0.08)', 
+      borderRadius: '16px', 
+      backdropFilter: 'blur(16px)',
+      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)',
+      transition: 'all 0.3s ease'
+   };
+   const tag = (c) => ({ 
+      background: `${c}10`, 
+      color: c, 
+      border: `1px solid ${c}25`, 
+      padding: '4px 10px', 
+      borderRadius: '8px', 
+      fontSize: '0.65rem', 
+      fontWeight: 700,
+      letterSpacing: '0.02em',
+      textTransform: 'uppercase'
+   });
+
+   const containerVariants = {
+      hidden: { opacity: 0 },
+      visible: {
+         opacity: 1,
+         transition: { staggerChildren: 0.1 }
+      }
+   };
+
+   const itemVariants = {
+      hidden: { y: 20, opacity: 0 },
+      visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: 'easeOut' } }
+   };
 
    return (
       <div style={{ display:'flex', height:'100vh', background:'#080c14', color:'white', overflow:'hidden', fontFamily:'"Inter", sans-serif' }}>
@@ -82,33 +114,51 @@ export default function Coverage() {
                </div>
                
                {/* Dashboard Hero Metrics */}
-               <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:'1.25rem', marginBottom:'2rem' }}>
+               <motion.div 
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:'1.25rem', marginBottom:'2rem' }}
+               >
                   {[
-                     { label:'Requirement Coverage', val: `${overallCoverage}%`, color:'#3b82f6', icon:<IconCoverage/>, sub:'High confidence' },
-                     { label:'Identified Coverage Gaps', val: gapCount, color:'#ef4444', icon:<Ic.Alert/>, sub:'Requires attention' },
-                     { label:'Functional Density', val: `${(cases.length / (stories.length || 1)).toFixed(1)}x`, color:'#10b981', icon:<IconScenario/>, sub:'Cases per requirement' },
-                     { label:'Risk Concentration', val:'Medium', color:'#f59e0b', icon:<IconAnalyze/>, sub:'Top: Authentication' },
+                      { label:'Requirement Coverage', val: `${overallCoverage}%`, color:'#60a5fa', icon:<IconCoverage/>, sub:'High confidence' },
+                      { label:'Identified Coverage Gaps', val: gapCount, color:'#ef4444', icon:<Ic.Alert/>, sub:'Requires attention' },
+                      { label:'Functional Density', val: `${(cases.length / (stories.length || 1)).toFixed(1)}x`, color:'#10b981', icon:<IconScenario/>, sub:'Cases per requirement' },
+                      { label:'Risk Concentration', val:'Medium', color:'#3b82f6', icon:<IconAnalyze/>, sub:'Top: Authentication' },
                   ].map((m, i) => (
-                     <div key={i} style={{ ...card, padding:'1.25rem' }}>
-                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'0.75rem' }}>
-                           <div style={{ background:`${m.color}15`, color:m.color, padding:'8px', borderRadius:'10px' }}>{m.icon}</div>
-                           <span style={{ fontSize:'0.65rem', color:'#475569', fontWeight:700, letterSpacing:'0.05em' }}>SNAPSHOT</span>
+                     <motion.div 
+                        key={i} 
+                        variants={itemVariants}
+                        whileHover={{ scale: 1.02, backgroundColor: 'rgba(30, 41, 59, 0.7)' }}
+                        style={{ ...card, padding:'1.5rem', cursor: 'default' }}
+                     >
+                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'1rem' }}>
+                           <div style={{ background:`${m.color}20`, color:m.color, padding:'10px', borderRadius:'12px' }}>{m.icon}</div>
+                           <span style={{ fontSize:'0.6rem', color:'#475569', fontWeight:800, letterSpacing:'0.1em' }}>METRIC</span>
                         </div>
-                        <div style={{ fontSize:'1.75rem', fontWeight:800, color:'white', marginBottom:'2px' }}>{m.val}</div>
-                        <div style={{ fontSize:'0.75rem', fontWeight:600, color:'#94a3b8', marginBottom:'4px' }}>{m.label}</div>
-                        <div style={{ fontSize:'0.65rem', color:'#475569' }}>{m.sub}</div>
-                     </div>
+                        <div style={{ fontSize:'2rem', fontWeight:900, color:'white', marginBottom:'4px', letterSpacing:'-0.02em' }}>{m.val}</div>
+                        <div style={{ fontSize:'0.8rem', fontWeight:600, color:'#cbd5e1', marginBottom:'6px' }}>{m.label}</div>
+                        <div style={{ fontSize:'0.7rem', color:'#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                           <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: m.color }} />
+                           {m.sub}
+                        </div>
+                     </motion.div>
                   ))}
-               </div>
+               </motion.div>
 
                <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:'1.5rem' }}>
                   
                   {/* Traceability Matrix */}
-                  <section style={{ ...card, display:'flex', flexDirection:'column' }}>
-                     <div style={{ padding:'1.25rem', borderBottom:'1px solid rgba(255,255,255,0.05)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <motion.section 
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                    style={{ ...card, display:'flex', flexDirection:'column' }}
+                  >
+                     <div style={{ padding:'1.5rem', borderBottom:'1px solid rgba(255,255,255,0.05)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                         <div>
-                           <h3 style={{ fontSize:'1.1rem', margin:0, fontWeight:700 }}>E2E Traceability Matrix</h3>
-                           <p style={{ margin:0, color:'#64748b', fontSize:'0.75rem' }}>Tracking requirement fulfillment from Story to executable Test Case</p>
+                           <h3 style={{ fontSize:'1.25rem', margin:0, fontWeight:800, color: 'white', letterSpacing: '-0.01em' }}>E2E Traceability Matrix</h3>
+                           <p style={{ margin:'4px 0 0', color:'#64748b', fontSize:'0.8rem' }}>Tracking requirement fulfillment from Story to executable Test Case</p>
                         </div>
                         <div style={{ display:'flex', gap:'8px' }}>
                            <select 
@@ -138,16 +188,24 @@ export default function Coverage() {
                                  .filter(t => (filterModule === 'All' || t.module === filterModule))
                                  .filter(t => t.title.toLowerCase().includes(searchQ.toLowerCase()) || t.id.toLowerCase().includes(searchQ.toLowerCase()))
                                  .map((item, idx) => (
-                                 <tr key={idx} style={{ borderBottom:'1px solid rgba(255,255,255,0.03)', transition:'background 0.2s' }} onMouseEnter={(e)=>e.currentTarget.style.background='rgba(255,255,255,0.02)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                                 <motion.tr 
+                                    key={idx} 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    style={{ borderBottom:'1px solid rgba(255,255,255,0.03)', transition:'background 0.2s' }} 
+                                    onMouseEnter={(e)=>e.currentTarget.style.background='rgba(255,255,255,0.03)'} 
+                                    onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}
+                                 >
                                     <td style={{ padding:'15px 20px' }}>
                                        <div style={{ fontWeight:600, color:'white', marginBottom:'2px' }}>{item.id}: {item.title}</div>
                                        <div style={{ fontSize:'0.7rem', color:'#64748b' }}>Module: {item.module || 'General'}</div>
                                     </td>
                                     <td style={{ padding:'15px 20px' }}>
                                        <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
-                                          <span style={{ fontWeight:700, color:item.scenarios.length > 0 ? '#a78bfa' : '#ef4444' }}>{item.scenarios.length}</span>
+                                          <span style={{ fontWeight:700, color:item.scenarios.length > 0 ? '#60a5fa' : '#ef4444' }}>{item.scenarios.length}</span>
                                           <div style={{ height:'4px', width:'40px', background:'rgba(255,255,255,0.05)', borderRadius:'2px', overflow:'hidden' }}>
-                                             <div style={{ height:'100%', width:`${Math.min(100, item.scenarios.length * 30)}%`, background:'#a78bfa' }} />
+                                             <div style={{ height:'100%', width:`${Math.min(100, item.scenarios.length * 30)}%`, background:'#60a5fa' }} />
                                           </div>
                                        </div>
                                     </td>
@@ -170,7 +228,7 @@ export default function Coverage() {
                                           <button style={{ background:'transparent', border:'none', color:'#94a3b8', cursor:'pointer' }} title="Suggest Cases"><IconSparkles/></button>
                                        </div>
                                     </td>
-                                 </tr>
+                                 </motion.tr>
                               ))}
                            </tbody>
                         </table>
@@ -182,22 +240,43 @@ export default function Coverage() {
                            </div>
                         )}
                      </div>
-                  </section>
+                  </motion.section>
 
                   {/* Sidebar - Insights & Suggestions */}
-                  <aside style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+                  <motion.aside 
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}
+                  >
                      
                      {/* Circular Coverage Chart */}
                      <div style={{ ...card, padding:'1.5rem', textAlign:'center' }}>
                         <h4 style={{ fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.07em', color:'#64748b', margin:'0 0 1.5rem' }}>OVERALL COMPLIANCE</h4>
                         <div style={{ position:'relative', display:'inline-flex', justifyContent:'center', alignItems:'center' }}>
-                           <svg width="140" height="140" style={{ transform:'rotate(-90deg)' }}>
-                              <circle cx="70" cy="70" r="60" stroke="rgba(255,255,255,0.03)" strokeWidth="12" fill="none" />
-                              <circle cx="70" cy="70" r="60" stroke="#3b82f6" strokeWidth="12" fill="none" strokeDasharray={`${(overallCoverage/100) * 377} 377`} strokeLinecap="round" style={{ transition:'stroke-dasharray 1s ease' }} />
+                           <svg width="150" height="150" style={{ transform:'rotate(-90deg)' }}>
+                              <defs>
+                                 <linearGradient id="coverageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#3b82f6" />
+                                    <stop offset="100%" stopColor="#60a5fa" />
+                                 </linearGradient>
+                              </defs>
+                              <circle cx="75" cy="75" r="65" stroke="rgba(255,255,255,0.03)" strokeWidth="14" fill="none" />
+                              <motion.circle 
+                                 cx="75" cy="75" r="65" 
+                                 stroke="url(#coverageGradient)" 
+                                 strokeWidth="14" 
+                                 fill="none" 
+                                 strokeDasharray={408} 
+                                 initial={{ strokeDashoffset: 408 }}
+                                 animate={{ strokeDashoffset: 408 - (overallCoverage/100) * 408 }}
+                                 strokeLinecap="round" 
+                                 transition={{ duration: 1.5, ease: 'easeOut' }} 
+                              />
                            </svg>
                            <div style={{ position:'absolute', textAlign:'center' }}>
-                              <div style={{ fontSize:'1.75rem', fontWeight:800 }}>{overallCoverage}%</div>
-                              <div style={{ fontSize:'0.65rem', color:'#475569', fontWeight:700 }}>VERIFIED</div>
+                              <div style={{ fontSize:'2rem', fontWeight:900, color: 'white' }}>{overallCoverage}%</div>
+                              <div style={{ fontSize:'0.7rem', color:'#64748b', fontWeight:800, letterSpacing: '0.05em' }}>VERIFIED</div>
                            </div>
                         </div>
                         <div style={{ marginTop:'1.5rem', display:'flex', justifyContent:'space-around' }}>
@@ -213,12 +292,17 @@ export default function Coverage() {
                      </div>
 
                      {/* AI Risk Analysis */}
-                     <div style={{ ...card, padding:'1.25rem', border:'1px solid rgba(245,158,11,0.2)', background:'rgba(245,158,11,0.03)' }}>
-                        <div style={{ display:'flex', gap:'8px', alignItems:'flex-start', marginBottom:'1rem' }}>
-                           <div style={{ color:'#f59e0b' }}><IconSparkles/></div>
+                     <motion.div 
+                        variants={itemVariants}
+                        whileHover={{ y: -5, boxShadow: '0 12px 24px -10px rgba(245, 158, 11, 0.3)' }}
+                        style={{ ...card, padding:'1.5rem', border:'1px solid rgba(245,158,11,0.15)', background:'linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(245,158,11,0.02) 100%)', position: 'relative', overflow: 'hidden' }}
+                     >
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#f59e0b' }} />
+                        <div style={{ display:'flex', gap:'12px', alignItems:'flex-start', marginBottom:'1.25rem' }}>
+                           <div style={{ color:'#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '8px', borderRadius: '10px' }}><IconSparkles/></div>
                            <div>
-                              <h4 style={{ margin:0, fontSize:'0.85rem', fontWeight:700, color:'#f59e0b' }}>AI Risk Assessment</h4>
-                              <p style={{ margin:0, fontSize:'0.7rem', color:'#92400e' }}>Immediate priorities for Stage 7</p>
+                              <h4 style={{ margin:0, fontSize:'0.9rem', fontWeight:800, color:'#f59e0b', letterSpacing: '0.01em' }}>AI Risk Assessment</h4>
+                              <p style={{ margin:'2px 0 0', fontSize:'0.75rem', color:'#92400e', fontWeight: 500 }}>Immediate priorities for Stage 7</p>
                            </div>
                         </div>
                         <ul style={{ padding:0, margin:0, listStyle:'none' }}>
@@ -227,14 +311,14 @@ export default function Coverage() {
                               { txt:'Edge case coverage is below 15% globally.', level:'High' },
                               { txt:'Manual verification suggested for 2 flows.', level:'Med' }
                            ].map((item, i) => (
-                              <li key={i} style={{ display:'flex', gap:'8px', marginBottom:'0.65rem', fontSize:'0.73rem', color:'#92400e' }}>
-                                 <span style={{ marginTop:'3px' }}><Ic.Alert/></span>
-                                 <span>{item.txt}</span>
+                              <li key={i} style={{ display:'flex', gap:'10px', marginBottom:'0.85rem', fontSize:'0.78rem', color:'#92400e', alignItems: 'center' }}>
+                                 <span style={{ color: '#f59e0b' }}><Ic.Alert/></span>
+                                 <span style={{ fontWeight: 500 }}>{item.txt}</span>
                               </li>
                            ))}
                         </ul>
-                        <button style={{ width:'100%', marginTop:'0.5rem', background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.2)', color:'#f59e0b', padding:'8px', borderRadius:'8px', fontSize:'0.75rem', fontWeight:700, cursor:'pointer' }}>Execute Gap Analysis Run</button>
-                     </div>
+                        <button style={{ width:'100%', marginTop:'0.5rem', background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.2)', color:'#f59e0b', padding:'10px', borderRadius:'10px', fontSize:'0.75rem', fontWeight:800, cursor:'pointer', transition: 'all 0.2s' }} onMouseEnter={(e)=>e.target.style.background='rgba(245,158,11,0.15)'} onMouseLeave={(e)=>e.target.style.background='rgba(245,158,11,0.1)'}>Execute Gap Analysis Run</button>
+                     </motion.div>
 
                      {/* Coverage Trends (Empty state for now) */}
                      <div style={{ ...card, padding:'1.25rem' }}>
@@ -259,7 +343,7 @@ export default function Coverage() {
                         </div>
                      </div>
 
-                  </aside>
+                  </motion.aside>
                </div>
             </div>
          </div>

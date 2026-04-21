@@ -21,7 +21,7 @@ const Ic = {
   Dot:     (p)=><div style={{width:'6px',height:'6px',borderRadius:'50%',background:p.c,flexShrink:0}}/>,
 };
 
-const PRIO_C = { Critical:'#ef4444', High:'#f97316', Medium:'#a78bfa', Low:'#64748b' };
+const PRIO_C = { Critical:'#ef4444', High:'#f97316', Medium:'#3b82f6', Low:'#64748b' };
 const RISK_C  = { High:'#ef4444', Medium:'#f59e0b', Low:'#10b981' };
 
 /* ─── Section heading component ─── */
@@ -326,7 +326,7 @@ Translate the final validated plan STRICTLY into the JSON schema below. Do not w
                 <p style={{ margin:0,fontSize:'0.75rem',color:'#475569' }}>Generated from {selected.size} user stories  •  {generated ? 'Draft' : 'Not Started'}</p>
               </div>
               <div style={{ display:'flex',gap:'6px' }}>
-                {[['Save','#10b981',<Ic.Save/>],['Export','#60a5fa',<Ic.Export/>],['Share','#a78bfa',<Ic.Share/>],['Regen','#f97316',<Ic.Refresh/>]].map(([l,c,ic])=>(
+                {[['Save','#10b981',<Ic.Save/>],['Export','#60a5fa',<Ic.Export/>],['Share','#3b82f6',<Ic.Share/>],['Regen','#f97316',<Ic.Refresh/>]].map(([l,c,ic])=>(
                   <button 
                     key={l} 
                     onClick={() => {
@@ -401,7 +401,7 @@ Translate the final validated plan STRICTLY into the JSON schema below. Do not w
                 {/* § Test Strategy */}
                 <div style={card}>
                   <div style={{ padding:'0.85rem 1.25rem' }}>
-                    <SectionHead num="III" label="TEST STRATEGY" accent="#a78bfa" open={open.strat} onToggle={()=>toggle('strat')}/>
+                    <SectionHead num="III" label="TEST STRATEGY" accent="#3b82f6" open={open.strat} onToggle={()=>toggle('strat')}/>
                     {open.strat && (
                       <div style={inCard}>
                         {(tpData?.strategy || []).length > 0 ? tpData.strategy.map((r,i)=><Bar key={i} {...r}/>) : <div style={{ fontSize:'0.75rem', color:'#475569' }}>Select stories and click generate to build strategy.</div>}
@@ -609,8 +609,8 @@ Translate the final validated plan STRICTLY into the JSON schema below. Do not w
                   { label:'Complexity',val:totalPts+' pts', color:'#f59e0b' },
                 ].map((m,i)=>(
                   <div key={i} style={{ padding:'0.75rem 0.85rem',background:'rgba(15,23,42,0.7)' }}>
-                    <div style={{ fontSize:'1.2rem',fontWeight:800,color:m.color }}>{m.val}</div>
-                    <div style={{ fontSize:'0.62rem',color:'#475569',fontWeight:600,marginTop:'1px' }}>{m.label}</div>
+                    <div style={{ fontSize:'1.4rem',fontWeight:800,color:m.color }}>{m.val}</div>
+                    <div style={{ fontSize:'0.65rem',color:'#64748b',fontWeight:600,marginTop:'1px' }}>{m.label}</div>
                   </div>
                 ))}
               </div>
@@ -646,7 +646,7 @@ Translate the final validated plan STRICTLY into the JSON schema below. Do not w
                 ))}
               </div>
               <div style={{ padding:'0.5rem 1rem 0.85rem' }}>
-                <button style={{ ...btn('#a78bfa'),width:'100%',justifyContent:'center',fontSize:'0.72rem' }}><IconSparkles/> Apply Suggestions</button>
+                <button style={{ ...btn('#3b82f6'),width:'100%',justifyContent:'center',fontSize:'0.72rem' }}><IconSparkles/> Apply Suggestions</button>
               </div>
             </div>
 
@@ -654,7 +654,7 @@ Translate the final validated plan STRICTLY into the JSON schema below. Do not w
             <div style={card}>
               <div style={{ padding:'0.75rem 1rem',borderBottom:'1px solid rgba(255,255,255,0.05)',fontSize:'0.66rem',fontWeight:700,letterSpacing:'0.07em',color:'#64748b' }}>EXPORT</div>
               <div style={{ padding:'0.75rem 1rem',display:'flex',flexDirection:'column',gap:'0.45rem' }}>
-                {[['Export PDF','#60a5fa'],['Export DOCX','#10b981'],['Export XLSX','#10b981'],['Sync to Jira','#f97316'],['→ Test Scenarios','#a78bfa']].map(([l,c])=>(
+                {[['Export PDF','#60a5fa'],['Export DOCX','#10b981'],['Export XLSX','#10b981'],['Sync to Jira','#f97316'],['→ Test Scenarios','#3b82f6']].map(([l,c])=>(
                   <button 
                     key={l} 
                     onClick={() => {

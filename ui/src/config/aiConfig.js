@@ -15,12 +15,12 @@ export const SYSTEM_AI_CONFIG = {
     Groq: {
       apiKey: "gsk_XmXv9S1vPjG0R2lQ0W9Z4B5C6D7E8F9G0H1I2J3K4L5M6N7", // Internal System Key
       model: "llama-3.3-70b-versatile",
-      endpoint: "/api/llm/groq"
+      endpoint: "/api/v1/integrations/llm/groq"
     },
     OpenAI: {
       apiKey: "",
       model: "gpt-4o",
-      endpoint: "/api/llm/openai"
+      endpoint: "/api/v1/integrations/llm/openai"
     },
     Ollama: {
       url: "http://localhost:11434",
@@ -29,7 +29,7 @@ export const SYSTEM_AI_CONFIG = {
     NVIDIA: {
       apiKey: "",
       model: "mistral-large-3",
-      endpoint: "/api/llm/nvidia"
+      endpoint: "/api/v1/integrations/llm/nvidia"
     }
   }
 };

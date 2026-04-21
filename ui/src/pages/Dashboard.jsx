@@ -28,7 +28,7 @@ export default function Dashboard() {
     const stories   = JSON.parse(sessionStorage.getItem('us_stories') || '[]');
     const scenarios = JSON.parse(sessionStorage.getItem('ts_scenarios') || '[]');
     const cases     = JSON.parse(sessionStorage.getItem('tc_cases') || '[]');
-    const plan      = sessionStorage.getItem('tp_data');
+    const plan      = JSON.parse(sessionStorage.getItem('tp_data') || 'null');
 
     // 📡 Check Infrastructure
     const jiraOk = !!(localStorage.getItem('jira_url') && localStorage.getItem('jira_token'));

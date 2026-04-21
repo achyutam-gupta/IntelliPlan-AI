@@ -11,7 +11,7 @@ export async function testOllamaConnection(endpoint) {
 export async function testGroqConnection(apiKey, model) {
   if (!apiKey.trim()) return { ok: false, msg: 'Please enter a Groq API key first.' };
   try {
-    const res = await fetch('/api/llm/groq/chat/completions', {
+    const res = await fetch('/api/v1/integrations/llm/groq/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({ model, messages: [{ role: 'user', content: 'ping' }], max_tokens: 1 }),
@@ -43,7 +43,7 @@ export async function testGrokConnection(apiKey) {
 export async function testOpenAIConnection(apiKey, model) {
   if (!apiKey.trim()) return { ok: false, msg: 'Please enter an OpenAI API key first.' };
   try {
-    const res = await fetch('/api/llm/openai/models', {
+    const res = await fetch('/api/v1/integrations/llm/openai/models', {
       headers: { Authorization: `Bearer ${apiKey}` },
       signal: AbortSignal.timeout(10000),
     });
@@ -61,13 +61,14 @@ export async function testJiraConnection(baseUrl, email, token) {
   try {
     const encoded = btoa(`${email}:${token}`);
     
-    // Use the Vite proxy if hitting the main domain, or cleanly format URL
-    // We use /api/jira to hit the local proxy configured in vite.config.js and bypass CORS
-    const isStandardUrl = baseUrl.includes('http');
-    const proxyUrl = isStandardUrl ? `/api/jira/rest/api/3/myself` : `${baseUrl.replace(/\/$/, '')}/rest/api/3/myself`;
-    
-    const res = await fetch(proxyUrl, {
-      headers: { Authorization: `Basic ${encoded}`, Accept: 'application/json' },
+    // Normalize base URL
+    const targetBase = baseUrl.replace(/\/$/, '');
+    const res = await fetch(`/api/v1/integrations/jira/rest/api/3/myself`, {
+      headers: { 
+        Authorization: `Basic ${encoded}`, 
+        Accept: 'application/json',
+        'x-target-base-url': targetBase
+      },
       signal: AbortSignal.timeout(10000),
     });
     if (res.ok) {
@@ -85,7 +86,7 @@ export async function testJiraConnection(baseUrl, email, token) {
 export async function testNvidiaConnection(apiKey) {
   if (!apiKey.trim()) return { ok: false, msg: 'Please enter an NVIDIA API key first.' };
   try {
-    const res = await fetch('/api/llm/nvidia/chat/completions', {
+    const res = await fetch('/api/v1/integrations/llm/nvidia/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({ 
