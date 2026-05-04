@@ -116,7 +116,7 @@ async function executeProvider(provider, promptText, signal) {
   }
 
   if (provider === 'Groq') {
-    const activeModel = (model.includes('mistral') || model.includes('nvidia')) ? 'llama-3.3-70b-versatile' : model;
+    const activeModel = model;
     const headers = { 'Content-Type': 'application/json' };
     if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
     

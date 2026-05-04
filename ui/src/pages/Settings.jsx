@@ -28,7 +28,7 @@ const THEME = {
 
 const PROVIDER_MODELS = {
   NVIDIA: ['mistralai/mistral-large-2411', 'mistralai/pixtral-12b-2409'],
-  Groq: ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768', 'llama-3.1-8b-instant'],
+  Groq: ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'mixtral-8x7b-32768', 'llama-3.1-8b-instant'],
   Ollama: ['llama3:latest', 'mistral:latest', 'gemma2:latest'],
   OpenAI: ['gpt-4o-latest', 'gpt-4o', 'gpt-4o-mini'],
 };
@@ -133,7 +133,7 @@ export default function Settings() {
     const testModel = provider === provName ? model : PROVIDER_MODELS[provName]?.[0];
 
     if (provName === 'Ollama') res = await testOllamaConnection(ollamaUrl);
-    else if (provName === 'Groq') res = await testGroqConnection(groqKey, testModel || 'llama-3.3-70b-versatile');
+    else if (provName === 'Groq') res = await testGroqConnection(groqKey, testModel || 'openai/gpt-oss-120b');
     else if (provName === 'OpenAI') res = await testOpenAIConnection(openAIKey, testModel || 'gpt-3.5-turbo');
     else if (provName === 'NVIDIA') res = await testNvidiaConnection(nvidiaKey);
     else if (provName === 'Jira') res = await testJiraConnection(jiraUrl, jiraEmail, jiraToken);

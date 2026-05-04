@@ -6,15 +6,15 @@
 
 export const SYSTEM_AI_CONFIG = {
   // Primary Provider (System Default)
-  defaultProvider: "NVIDIA",
-  defaultModel: "mistral-large-3",
+  defaultProvider: "Groq",
+  defaultModel: "openai/gpt-oss-120b",
   
-  // Hardcoded failover hierarchy: Primary (NVIDIA) -> Fallback (Groq)
-  failoverSequence: ["NVIDIA", "Groq"],
+  // Failover hierarchy: Primary (Groq) -> Fallback (NVIDIA)
+  failoverSequence: ["Groq", "NVIDIA"],
   providers: {
     Groq: {
-      apiKey: "gsk_XmXv9S1vPjG0R2lQ0W9Z4B5C6D7E8F9G0H1I2J3K4L5M6N7", // Internal System Key
-      model: "llama-3.3-70b-versatile",
+      apiKey: "", // User provides key manually via Settings
+      model: "openai/gpt-oss-120b",
       endpoint: "/api/v1/integrations/llm/groq"
     },
     OpenAI: {
