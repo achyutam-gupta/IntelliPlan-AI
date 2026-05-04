@@ -31,7 +31,8 @@ async def jira_proxy(path: str, request: Request):
         "origin", "referer", "x-forwarded-for", "x-forwarded-host",
         "x-forwarded-proto", "x-vercel-id", "x-vercel-forwarded-for",
         "x-vercel-ip-continent", "x-vercel-ip-country", "x-vercel-ip-region",
-        "x-vercel-ip-city", "x-vercel-ip-timezone", "forwarded", "x-real-ip"
+        "x-vercel-ip-city", "x-vercel-ip-timezone", "forwarded", "x-real-ip",
+        "x-target-base-url"
     ]
     headers = {k: v for k, v in request.headers.items() if k.lower() not in excluded_headers and not k.lower().startswith('x-vercel')}
     
@@ -70,7 +71,7 @@ async def jira_proxy(path: str, request: Request):
             method=request.method,
             url=url,
             headers=headers,
-            params=request.query_params,
+            params=dict(request.query_params),
             timeout=15,
             **kwargs
         )
@@ -144,7 +145,7 @@ async def llm_proxy(provider: str, path: str, request: Request):
             method=request.method,
             url=url,
             headers=headers,
-            params=request.query_params,
+            params=dict(request.query_params),
             timeout=45, # LLMs need longer timeouts
             **kwargs
         )
