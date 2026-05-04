@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from schemas import ScenarioGenerationRequest, ScenarioResponse
+from backend.schemas import ScenarioGenerationRequest, ScenarioResponse
 import sys
 import os
 import json
