@@ -47,16 +47,40 @@ export function repairJSON(rawString) {
 }
 
 export function parseLLMJSON(rawString) {
-  const clean = repairJSON(rawString);
+  if (!rawString) return null;
+  
+  // Step 1: Strip markdown codeblocks
+  let clean = rawString.replace(/```(?:json)?/gi, '').trim();
+  
+  // Extract just the JSON part (from first { or [ to last } or ])
+  const startIdx = clean.search(/[\{\[]/);
+  const endIdx = clean.search(/[\}\]][^}\]]*$/);
+  if (startIdx !== -1 && endIdx !== -1) {
+    clean = clean.substring(startIdx, endIdx + 1);
+  }
+
+  // Attempt 1: Standard parse
+  try { return JSON.parse(clean); } catch (e) {}
+
+  // Attempt 2: Strip unescaped newlines/tabs (common LLM error in string values)
   try {
+    const noNewlines = clean.replace(/[\r\n\t]+/g, ' ');
+    return JSON.parse(noNewlines);
+  } catch (e) {}
+
+  // Attempt 3: Aggressive repair (adds missing commas, removes trailing commas)
+  try {
+    const repaired = repairJSON(clean);
+    return JSON.parse(repaired);
+  } catch (e) {}
+
+  // Attempt 4: Aggressive repair + no newlines
+  try {
+    const repairedNoNewlines = repairJSON(clean).replace(/[\r\n\t]+/g, ' ');
+    return JSON.parse(repairedNoNewlines);
+  } catch (e) {
+    // If all fail, run standard parse again to throw the error to the UI
     return JSON.parse(clean);
-  } catch (error) {
-    try {
-      const stage2 = clean.replace(/[\r\n]/g, ' ');
-      return JSON.parse(stage2);
-    } catch (error2) {
-      throw error;
-    }
   }
 }
 
