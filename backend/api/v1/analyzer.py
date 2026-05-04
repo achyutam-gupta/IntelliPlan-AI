@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from schemas import URLAnalysisRequest, URLAnalysisResponse
+from backend.schemas import URLAnalysisRequest, URLAnalysisResponse
 import requests
 from bs4 import BeautifulSoup
 import os
