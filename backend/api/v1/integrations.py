@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request, Response, HTTPException
 from fastapi.responses import JSONResponse
 import os
 import time
+import httpx
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
