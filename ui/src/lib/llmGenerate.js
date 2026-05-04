@@ -88,7 +88,7 @@ export async function generateContentWithLLM(promptText) {
   const timeout = 60000;
   const failoverSequence = SYSTEM_AI_CONFIG.failoverSequence;
 
-  let lastError = null;
+  let errors = [];
   
   for (const provider of failoverSequence) {
     const controller = new AbortController();
@@ -101,17 +101,19 @@ export async function generateContentWithLLM(promptText) {
       return result;
     } catch (error) {
       clearTimeout(timerId);
-      lastError = error;
+      errors.push(`${provider}: ${error.message}`);
       console.warn(`[LLM] ${provider} failed: ${error.message}`);
       // Continue to next provider in sequence
     }
   }
 
   // If we reach here, everything failed
-  if (lastError?.name === 'AbortError') {
+  const isTimeout = errors.some(e => e.includes('AbortError'));
+  if (isTimeout) {
     throw new Error("Synthesis timed out. The neural engines were unable to process the payload in time.");
   }
-  throw new Error(`Orchestration failure: All neural engines (${failoverSequence.join(', ')}) are currently non-responsive. Root: ${lastError?.message}`);
+  
+  throw new Error(`Orchestration failure: All neural engines (${failoverSequence.join(', ')}) failed. Roots: | ${errors.join(' | ')}`);
 }
 
 async function executeProvider(provider, promptText, signal) {
@@ -154,7 +156,13 @@ async function executeProvider(provider, promptText, signal) {
       const data = await res.json();
       return data.choices?.[0]?.message?.content;
     }
-    throw new Error(`Groq Error: ${res.statusText}`);
+    
+    let errMsg = res.statusText;
+    try {
+      const errData = await res.json();
+      errMsg = errData.error?.message || errData.detail || JSON.stringify(errData);
+    } catch(e) {}
+    throw new Error(`Groq Error: ${res.status} ${errMsg}`);
   }
 
   if (provider === 'NVIDIA') {
@@ -171,7 +179,13 @@ async function executeProvider(provider, promptText, signal) {
       const data = await res.json();
       return data.choices?.[0]?.message?.content;
     }
-    throw new Error(`NVIDIA Error: ${res.statusText}`);
+    
+    let errMsg = res.statusText;
+    try {
+      const errData = await res.json();
+      errMsg = errData.error?.message || errData.detail || JSON.stringify(errData);
+    } catch(e) {}
+    throw new Error(`NVIDIA Error: ${res.status} ${errMsg}`);
   }
 
   // OpenAI, Grok, etc.
