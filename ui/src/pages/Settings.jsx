@@ -28,7 +28,7 @@ const THEME = {
 
 const PROVIDER_MODELS = {
   NVIDIA: ['mistralai/mistral-large-2411', 'mistralai/pixtral-12b-2409'],
-  Groq: ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'mixtral-8x7b-32768', 'llama-3.1-8b-instant'],
+  Groq: ['openai/gpt-oss-120b'],
   Ollama: ['llama3:latest', 'mistral:latest', 'gemma2:latest'],
   OpenAI: ['gpt-4o-latest', 'gpt-4o', 'gpt-4o-mini'],
 };
