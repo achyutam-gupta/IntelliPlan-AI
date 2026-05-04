@@ -118,8 +118,8 @@ export async function generateContentWithLLM(promptText) {
 
 async function executeProvider(provider, promptText, signal) {
   const sysConfig = SYSTEM_AI_CONFIG.providers[provider];
-  
-  const model = localStorage.getItem('llm_model') || sysConfig?.model || SYSTEM_AI_CONFIG.defaultModel;
+  // Always use the configured model for the provider (Groq), ignore any localStorage overrides to enforce default
+  const model = sysConfig?.model || SYSTEM_AI_CONFIG.defaultModel;
   const apiKey = localStorage.getItem(`llm_${provider.toLowerCase()}Key`) || sysConfig?.apiKey || '';
 
   if (provider !== 'Ollama' && !apiKey) {
@@ -142,21 +142,27 @@ async function executeProvider(provider, promptText, signal) {
   }
 
   if (provider === 'Groq') {
-    const activeModel = model;
+    // For Groq provider, always use the configured model (GPT-OSS-120B) and ignore OpenAI-prefixed model handling
+    const activeModel = model; // Already set to sysConfig.model (gpt-oss-120b)
     const headers = { 'Content-Type': 'application/json' };
     if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
     
     const res = await fetch('/api/v1/integrations/llm/groq/chat/completions', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ model: activeModel, messages: [{ role: 'user', content: promptText }] }),
+      body: JSON.stringify({ 
+        model: activeModel, 
+        messages: [{ role: 'user', content: promptText }],
+        temperature: 1,
+        max_completion_tokens: 8192,
+        top_p: 1
+      }),
       signal
     });
     if (res.ok) {
       const data = await res.json();
       return data.choices?.[0]?.message?.content;
     }
-    
     let errMsg = res.statusText;
     try {
       const errData = await res.json();
@@ -165,28 +171,7 @@ async function executeProvider(provider, promptText, signal) {
     throw new Error(`Groq Error: ${res.status} ${errMsg}`);
   }
 
-  if (provider === 'NVIDIA') {
-    const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
-    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
-    
-    const res = await fetch('/api/v1/integrations/llm/nvidia/chat/completions', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ model: 'mistralai/mistral-large-3-675b-instruct-2512', messages: [{ role: 'user', content: promptText }], max_tokens: 4096 }),
-      signal
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return data.choices?.[0]?.message?.content;
-    }
-    
-    let errMsg = res.statusText;
-    try {
-      const errData = await res.json();
-      errMsg = errData.error?.message || errData.detail || JSON.stringify(errData);
-    } catch(e) {}
-    throw new Error(`NVIDIA Error: ${res.status} ${errMsg}`);
-  }
+
 
   // OpenAI, Grok, etc.
   const urlMap = { 'OpenAI': '/api/v1/integrations/llm/openai/chat/completions', 'Grok': 'https://api.x.ai/v1/chat/completions' };

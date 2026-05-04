@@ -8,9 +8,9 @@ export const SYSTEM_AI_CONFIG = {
   // Primary Provider (System Default)
   defaultProvider: "Groq",
   defaultModel: "openai/gpt-oss-120b",
-  
+
   // Failover hierarchy: Primary (Groq) -> Fallback (NVIDIA)
-  failoverSequence: ["Groq", "NVIDIA"],
+  failoverSequence: ["Groq"],
   providers: {
     Groq: {
       apiKey: "", // User provides key manually via Settings
@@ -25,11 +25,6 @@ export const SYSTEM_AI_CONFIG = {
     Ollama: {
       url: "http://localhost:11434",
       model: "llama3:latest"
-    },
-    NVIDIA: {
-      apiKey: "",
-      model: "mistral-large-3",
-      endpoint: "/api/v1/integrations/llm/nvidia"
     }
   }
 };
