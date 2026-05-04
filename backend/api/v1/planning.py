@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from schemas import TestPlanRequest, TestPlanResponse
+from backend.schemas import TestPlanRequest, TestPlanResponse
 import sys
 import os
 import json
