@@ -25,25 +25,54 @@ async def jira_proxy(path: str, request: Request):
     
     url = f"{target_base.rstrip('/')}/{path}"
     
-    # Forward headers, excluding host and sensitive platform headers
-    excluded_headers = ["host", "accept-encoding", "content-length", "connection"]
-    headers = {k: v for k, v in request.headers.items() if k.lower() not in excluded_headers}
+    # Aggressively filter headers to prevent WAF/CORS issues on Vercel
+    excluded_headers = [
+        "host", "accept-encoding", "content-length", "connection",
+        "origin", "referer", "x-forwarded-for", "x-forwarded-host",
+        "x-forwarded-proto", "x-vercel-id", "x-vercel-forwarded-for",
+        "x-vercel-ip-continent", "x-vercel-ip-country", "x-vercel-ip-region",
+        "x-vercel-ip-city", "x-vercel-ip-timezone", "forwarded", "x-real-ip"
+    ]
+    headers = {k: v for k, v in request.headers.items() if k.lower() not in excluded_headers and not k.lower().startswith('x-vercel')}
     
-    # Ensure Authorization is present
+    # Ensure Authorization is present or fallback to Vercel Environment Variables
     if "authorization" not in [k.lower() for k in headers.keys()]:
-        logger.error("Jira Proxy: Missing Authorization header")
-        raise HTTPException(status_code=401, detail="Authentication credentials (Authorization header) required for Jira proxy.")
+        # Fallback to Server-Side Environment Variables
+        jira_email = os.environ.get("JIRA_EMAIL")
+        jira_token = os.environ.get("JIRA_API_TOKEN")
+        
+        if jira_email and jira_token:
+            import base64
+            auth_string = f"{jira_email}:{jira_token}"
+            encoded_auth = base64.b64encode(auth_string.encode('utf-8')).decode('utf-8')
+            headers["Authorization"] = f"Basic {encoded_auth}"
+        else:
+            logger.error("Jira Proxy: Missing Authorization header and no environment variables found")
+            raise HTTPException(status_code=401, detail="Authentication credentials (Authorization header or Vercel Environment Variables) required for Jira proxy.")
+            
+    if not target_base:
+        # Fallback to a default for testing, but warn in logs
+        target_base = os.environ.get("JIRA_URL", "https://ailearning2026.atlassian.net")
+        logger.warning(f"Jira Proxy: No 'x-target-base-url' provided. Falling back to {target_base}")
+    
+    url = f"{target_base.rstrip('/')}/{path}"
+    
+    # Don't send empty body for GET/HEAD requests
+    kwargs = {}
+    body = await request.body()
+    if request.method not in ["GET", "HEAD"] and body:
+        kwargs["data"] = body
+
 
     try:
         start_time = time.time()
-        body = await request.body()
         resp = requests.request(
             method=request.method,
             url=url,
             headers=headers,
-            data=body,
             params=request.query_params,
-            timeout=15
+            timeout=15,
+            **kwargs
         )
         duration = time.time() - start_time
         logger.info(f"Jira Proxy: {request.method} {path} -> {resp.status_code} ({duration:.2f}s)")
@@ -77,19 +106,47 @@ async def llm_proxy(provider: str, path: str, request: Request):
         
     url = f"{providers[provider]}/{path}"
     
-    excluded_headers = ["host", "accept-encoding", "content-length", "connection"]
-    headers = {k: v for k, v in request.headers.items() if k.lower() not in excluded_headers}
+    # Aggressively filter headers to prevent WAF issues on Vercel
+    excluded_headers = [
+        "host", "accept-encoding", "content-length", "connection",
+        "origin", "referer", "x-forwarded-for", "x-forwarded-host",
+        "x-forwarded-proto", "x-vercel-id", "x-vercel-forwarded-for",
+        "x-vercel-ip-continent", "x-vercel-ip-country", "x-vercel-ip-region",
+        "x-vercel-ip-city", "x-vercel-ip-timezone", "forwarded", "x-real-ip"
+    ]
+    headers = {k: v for k, v in request.headers.items() if k.lower() not in excluded_headers and not k.lower().startswith('x-vercel')}
     
+    # Ensure Authorization is present or fallback to Vercel Environment Variables
+    if "authorization" not in [k.lower() for k in headers.keys()]:
+        env_key = ""
+        if provider == "groq":
+            env_key = os.environ.get("GROQ_API_KEY")
+        elif provider == "nvidia":
+            env_key = os.environ.get("NVIDIA_API_KEY")
+        elif provider == "openai":
+            env_key = os.environ.get("OPENAI_API_KEY")
+            
+        if env_key:
+            headers["Authorization"] = f"Bearer {env_key}"
+        else:
+            logger.error(f"LLM Proxy: Missing Authorization header and no environment variable found for {provider}")
+            raise HTTPException(status_code=401, detail=f"Authentication credentials (Authorization header or Vercel Environment Variables) required for LLM proxy ({provider}).")
+
+    # Don't send empty body for GET/HEAD
+    kwargs = {}
+    body = await request.body()
+    if request.method not in ["GET", "HEAD"] and body:
+        kwargs["data"] = body
+        
     try:
         start_time = time.time()
-        body = await request.body()
         resp = requests.request(
             method=request.method,
             url=url,
             headers=headers,
-            data=body,
             params=request.query_params,
-            timeout=45 # LLMs need longer timeouts
+            timeout=45, # LLMs need longer timeouts
+            **kwargs
         )
         duration = time.time() - start_time
         logger.info(f"LLM Proxy ({provider}): {path} -> {resp.status_code} ({duration:.2f}s)")

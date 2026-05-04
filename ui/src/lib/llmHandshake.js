@@ -9,16 +9,18 @@ export async function testOllamaConnection(endpoint) {
 }
 
 export async function testGroqConnection(apiKey, model) {
-  if (!apiKey.trim()) return { ok: false, msg: 'Please enter a Groq API key first.' };
   try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (apiKey && apiKey.trim()) headers['Authorization'] = `Bearer ${apiKey.trim()}`;
+    
     const res = await fetch('/api/v1/integrations/llm/groq/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers,
       body: JSON.stringify({ model, messages: [{ role: 'user', content: 'ping' }], max_tokens: 1 }),
       signal: AbortSignal.timeout(10000),
     });
     if (res.ok) return { ok: true, msg: `Connected to Groq · model: ${model}` };
-    if (res.status === 401) return { ok: false, msg: 'Invalid API key. Check your Groq API key.' };
+    if (res.status === 401) return { ok: false, msg: 'Invalid API key. Check your Groq API key or Vercel Environment Variables.' };
     return { ok: false, msg: `Groq responded with status ${res.status}.` };
   } catch {
     return { ok: false, msg: 'Network error reaching Groq API.' };
@@ -26,10 +28,11 @@ export async function testGroqConnection(apiKey, model) {
 }
 
 export async function testGrokConnection(apiKey) {
-  if (!apiKey.trim()) return { ok: false, msg: 'Please enter an xAI API key first.' };
   try {
+    const headers = {};
+    if (apiKey && apiKey.trim()) headers['Authorization'] = `Bearer ${apiKey.trim()}`;
     const res = await fetch('https://api.x.ai/v1/models', {
-      headers: { Authorization: `Bearer ${apiKey}` },
+      headers,
       signal: AbortSignal.timeout(10000),
     });
     if (res.ok) return { ok: true, msg: 'Connected to xAI Grok API.' };
@@ -41,10 +44,11 @@ export async function testGrokConnection(apiKey) {
 }
 
 export async function testOpenAIConnection(apiKey, model) {
-  if (!apiKey.trim()) return { ok: false, msg: 'Please enter an OpenAI API key first.' };
   try {
+    const headers = {};
+    if (apiKey && apiKey.trim()) headers['Authorization'] = `Bearer ${apiKey.trim()}`;
     const res = await fetch('/api/v1/integrations/llm/openai/models', {
-      headers: { Authorization: `Bearer ${apiKey}` },
+      headers,
       signal: AbortSignal.timeout(10000),
     });
     if (res.ok) return { ok: true, msg: `Connected to OpenAI API.` };
@@ -56,24 +60,26 @@ export async function testOpenAIConnection(apiKey, model) {
 }
 
 export async function testJiraConnection(baseUrl, email, token) {
-  if (!baseUrl.trim() || !email.trim() || !token.trim())
-    return { ok: false, msg: 'Please fill in all Jira credential fields.' };
+  if (!baseUrl.trim())
+    return { ok: false, msg: 'Please enter at least the Jira Domain URL to test.' };
   try {
-    const encoded = btoa(`${email}:${token}`);
-    
-    // Normalize base URL
     const targetBase = baseUrl.replace(/\/$/, '');
+    const headers = { 
+      Accept: 'application/json',
+      'x-target-base-url': targetBase
+    };
+    
+    if (email && email.trim() && token && token.trim()) {
+      const encoded = btoa(`${email.trim()}:${token.trim()}`);
+      headers['Authorization'] = `Basic ${encoded}`;
+    }
     const res = await fetch(`/api/v1/integrations/jira/rest/api/3/myself`, {
-      headers: { 
-        Authorization: `Basic ${encoded}`, 
-        Accept: 'application/json',
-        'x-target-base-url': targetBase
-      },
+      headers,
       signal: AbortSignal.timeout(10000),
     });
     if (res.ok) {
       const data = await res.json();
-      return { ok: true, msg: `Connected as ${data.displayName || email}.` };
+      return { ok: true, msg: `Connected as ${data.displayName || email || 'Service Account'}.` };
     }
     if (res.status === 401) return { ok: false, msg: 'Unauthorized — check your email and API token.' };
     if (res.status === 403) return { ok: false, msg: 'Forbidden — your account may lack API access.' };
@@ -84,11 +90,13 @@ export async function testJiraConnection(baseUrl, email, token) {
 }
 
 export async function testNvidiaConnection(apiKey) {
-  if (!apiKey.trim()) return { ok: false, msg: 'Please enter an NVIDIA API key first.' };
   try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (apiKey && apiKey.trim()) headers['Authorization'] = `Bearer ${apiKey.trim()}`;
+    
     const res = await fetch('/api/v1/integrations/llm/nvidia/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers,
       body: JSON.stringify({ 
         model: 'mistralai/mistral-large-3-675b-instruct-2512', 
         messages: [{ role: 'user', content: 'ping' }], 

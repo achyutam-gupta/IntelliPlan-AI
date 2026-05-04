@@ -97,7 +97,7 @@ async function executeProvider(provider, promptText, signal) {
   const apiKey = localStorage.getItem(`llm_${provider.toLowerCase()}Key`) || sysConfig?.apiKey || '';
 
   if (provider !== 'Ollama' && !apiKey) {
-    throw new Error(`${provider} Engine orchestration failed: Missing internal system credentials.`);
+    console.warn(`[LLM] No client-side key for ${provider}. Attempting to use server-side environment variables.`);
   }
 
   if (provider === 'Ollama') {
@@ -117,9 +117,12 @@ async function executeProvider(provider, promptText, signal) {
 
   if (provider === 'Groq') {
     const activeModel = (model.includes('mistral') || model.includes('nvidia')) ? 'llama-3.3-70b-versatile' : model;
+    const headers = { 'Content-Type': 'application/json' };
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+    
     const res = await fetch('/api/v1/integrations/llm/groq/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers,
       body: JSON.stringify({ model: activeModel, messages: [{ role: 'user', content: promptText }] }),
       signal
     });
@@ -131,9 +134,12 @@ async function executeProvider(provider, promptText, signal) {
   }
 
   if (provider === 'NVIDIA') {
+    const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+    
     const res = await fetch('/api/v1/integrations/llm/nvidia/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      headers,
       body: JSON.stringify({ model: 'mistralai/mistral-large-3-675b-instruct-2512', messages: [{ role: 'user', content: promptText }], max_tokens: 4096 }),
       signal
     });
@@ -147,9 +153,12 @@ async function executeProvider(provider, promptText, signal) {
   // OpenAI, Grok, etc.
   const urlMap = { 'OpenAI': '/api/v1/integrations/llm/openai/chat/completions', 'Grok': 'https://api.x.ai/v1/chat/completions' };
   if (urlMap[provider]) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+    
     const res = await fetch(urlMap[provider], {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers,
       body: JSON.stringify({ model, messages: [{ role: 'user', content: promptText }] }),
       signal
     });

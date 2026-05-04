@@ -602,10 +602,7 @@ Translate the final validated plan STRICTLY into the JSON schema below. Do not w
               <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'rgba(255,255,255,0.05)' }}>
                 {[
                   { label:'Stories',   val:selected.size,   color:'#60a5fa' },
-                  { label:'Coverage',  val:'92%',           color:'#10b981' },
                   { label:'High Risks',val:highRisk,        color:'#ef4444' },
-                  { label:'Est. Days', val:'16',            color:'#f97316' },
-                  { label:'Auto %',    val:'65%',           color:'#a78bfa' },
                   { label:'Complexity',val:totalPts+' pts', color:'#f59e0b' },
                 ].map((m,i)=>(
                   <div key={i} style={{ padding:'0.75rem 0.85rem',background:'rgba(15,23,42,0.7)' }}>

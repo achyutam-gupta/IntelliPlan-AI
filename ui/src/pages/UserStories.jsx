@@ -85,10 +85,8 @@ export default function UserStories() {
     if (!importUrl) return toast.error("Please enter a Jira URL.");
     setFetchingJira(true);
     try {
-      const email = localStorage.getItem('jira_email');
-      const token = localStorage.getItem('jira_token');
-      if (!email || !token) throw new Error("Jira credentials not set in Settings.");
-      const encoded = btoa(`${email}:${token}`);
+      const email = localStorage.getItem('jira_email') || '';
+      const token = localStorage.getItem('jira_token') || '';
       const match = importUrl.match(/\/browse\/([A-Z0-9-]+)/);
       const urlBaseMatch = importUrl.match(/^(https?:\/\/[^\/]+)/);
       
@@ -96,12 +94,17 @@ export default function UserStories() {
       if (!urlBaseMatch) throw new Error("Could not determine Jira base URL.");
       
       const targetBase = urlBaseMatch[1];
+      const headers = { 
+        Accept: 'application/json',
+        'x-target-base-url': targetBase
+      };
+      
+      if (email && token) {
+        headers['Authorization'] = `Basic ${btoa(`${email}:${token}`)}`;
+      }
+
       const res = await fetch(`/api/v1/integrations/jira/rest/api/3/issue/${match[1]}`, {
-        headers: { 
-          Authorization: `Basic ${encoded}`, 
-          Accept: 'application/json',
-          'x-target-base-url': targetBase
-        }
+        headers
       });
       if (!res.ok) throw new Error(`Jira returned ${res.status}`);
       const data = await res.json();
@@ -239,23 +242,9 @@ UI MAPPING INSTRUCTIONS:
            <p style={{ color:'#64748b',margin:0,fontSize:'0.88rem' }}>Parse requirement documents and automatically generate ISTQB-aligned User Stories using AI.</p>
         </div>
 
-        {/* ── Top Metrics (KPIs) ── */}
-        <div style={{ padding:'0 2rem 1.5rem', display:'flex', gap:'1rem' }}>
-          {[
-            { label:'Total Stories generated', val: stories.length, color:'#60a5fa' },
-            { label:'High Priority Stories',  val: highPrio,       color:'#ef4444' },
-            { label:'Average AI Quality',     val: stories.length ? avgQuality+'%' : '0%', color:'#10b981' }
-          ].map((m,i)=>(
-            <div key={i} style={{ ...cardBox, padding:'1rem 1.25rem', flex: 1, display:'flex', flexDirection:'column', gap:'4px' }}>
-              <div style={{ fontSize:'1.4rem',fontWeight:800,color:m.color }}>{m.val}</div>
-              <div style={{ fontSize:'0.7rem',color:'#64748b',fontWeight:600 }}>{m.label}</div>
-              {m.label === 'Average AI Quality' && stories.length > 0 && <div style={{ fontSize: '0.6rem', color: '#10b981', fontWeight: 700 }}>ACTIVE ENGINE</div>}
-            </div>
-          ))}
-        </div>
 
         {/* ── Main Layout ── */}
-        <div style={{ flex:1, display:'grid', gridTemplateColumns:'420px 1fr', gap:'1.5rem', padding:'0 2rem', overflow:'hidden', minHeight:0 }}>
+        <div style={{ flex:1, display:'grid', gridTemplateColumns:'400px 1fr 260px', gap:'1rem', padding:'0 2rem', overflow:'hidden', minHeight:0 }}>
 
           {/* LEFT: Input Requirements */}
           <div style={{ display:'flex',flexDirection:'column',gap:'1rem',overflowY:'auto',paddingBottom:'2rem' }}>
@@ -338,8 +327,6 @@ UI MAPPING INSTRUCTIONS:
                 <IconSearch />
                 <input value={searchQ} onChange={e=>setSearchQ(e.target.value)} placeholder="Search stories…" style={{ background:'transparent',border:'none',color:'white',marginLeft:'6px',outline:'none',fontSize:'0.82rem',width:'100%' }}/>
               </div>
-              <button onClick={selectAll} style={{ ...btn('#60a5fa') }}>Select All</button>
-              <button onClick={clearAll}  style={{ ...btn('#64748b') }}>Clear</button>
               <div style={{ flex: 1 }} />
               <div style={{ display:'flex', gap:'8px', marginRight:'1rem' }}>
                 <button onClick={() => toast.success("Stories state synchronized.")} style={btn('#10b981')}><Ic.Check/> Save</button>
@@ -438,6 +425,60 @@ UI MAPPING INSTRUCTIONS:
                 })}
               </div>
             )}
+          </div>
+
+          {/* RIGHT: Metrics & Actions */}
+          <div style={{ display:'flex',flexDirection:'column',gap:'0.75rem',overflowY:'auto',paddingBottom:'2rem' }}>
+            
+            {/* Story Metrics */}
+            <div style={cardBox}>
+              <div style={{ padding:'0.75rem 1rem',borderBottom:'1px solid rgba(255,255,255,0.05)',fontSize:'0.66rem',fontWeight:700,letterSpacing:'0.07em',color:'#64748b' }}>STORY METRICS</div>
+              <div style={{ display:'grid',gridTemplateColumns:'1fr',gap:'1px',background:'rgba(255,255,255,0.05)' }}>
+                {[
+                  { label:'Total Generated', val: stories.length, color:'#60a5fa' },
+                  { label:'High Priority',  val: highPrio,       color:'#ef4444' },
+                  { label:'Avg Quality',     val: stories.length ? avgQuality+'%' : '0%', color:'#10b981' }
+                ].map((m,i)=>(
+                  <div key={i} style={{ padding:'0.85rem 1rem',background:'rgba(15,23,42,0.7)' }}>
+                    <div style={{ fontSize:'1.4rem',fontWeight:800,color:m.color }}>{m.val}</div>
+                    <div style={{ fontSize:'0.65rem',color:'#64748b',fontWeight:600,marginTop:'1px' }}>{m.label}</div>
+                    {m.label === 'Avg Quality' && stories.length > 0 && (
+                      <div style={{ fontSize: '0.6rem', color: '#10b981', fontWeight: 700, marginTop: '4px' }}>ACTIVE ENGINE</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Selection Status */}
+            <div style={cardBox}>
+               <div style={{ padding:'0.75rem 1rem',borderBottom:'1px solid rgba(255,255,255,0.05)',fontSize:'0.66rem',fontWeight:700,letterSpacing:'0.07em',color:'#64748b' }}>SELECTION</div>
+               <div style={{ padding:'1rem' }}>
+                  <div style={{ fontSize:'1.4rem',fontWeight:800,color:'#3b82f6' }}>{selected.size}</div>
+                  <div style={{ fontSize:'0.65rem',color:'#64748b',fontWeight:600 }}>Stories Selected</div>
+                  <div style={{ marginTop:'1.25rem', display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+                    <button onClick={selectAll} style={{ ...btn('#60a5fa'), justifyContent:'center' }}>Select All</button>
+                    <button onClick={clearAll}  style={{ ...btn('#64748b'), justifyContent:'center' }}>Clear Selection</button>
+                  </div>
+               </div>
+            </div>
+
+            {/* AI Insights */}
+            <div style={{ background:'rgba(59,130,246,0.07)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:'10px',padding:'1.1rem' }}>
+              <div style={{ display:'flex',gap:'10px',alignItems:'flex-start' }}>
+                <div style={{ color:'#60a5fa',flexShrink:0 }}><IconSparkles/></div>
+                <div>
+                  <div style={{ fontSize:'0.7rem',fontWeight:700,letterSpacing:'0.06em',color:'#60a5fa',marginBottom:'4px' }}>AI INSIGHT</div>
+                  <p style={{ margin:0,fontSize:'0.76rem',color:'#93c5fd',lineHeight:1.5 }}>
+                    {stories.length > 0 
+                      ? `${stories.length} stories mapped. High Priority paths detected. Recommended to focus on P0/P1 scenarios during test planning.`
+                      : "Awaiting requirement input to analyze story clusters."
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
