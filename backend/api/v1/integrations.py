@@ -61,29 +61,29 @@ async def jira_proxy(path: str, request: Request):
     # Don't send empty body for GET/HEAD requests
     kwargs = {}
     body = await request.body()
-    if request.method not in ["GET", "HEAD"] and body:
-        kwargs["data"] = body
+    body = await request.body()
 
 
     try:
         start_time = time.time()
-        resp = requests.request(
-            method=request.method,
-            url=url,
-            headers=headers,
-            params=dict(request.query_params),
-            timeout=15,
-            **kwargs
-        )
+        async with httpx.AsyncClient() as client:
+            resp = await client.request(
+                method=request.method,
+                url=url,
+                headers=headers,
+                params=dict(request.query_params),
+                content=body if request.method not in ["GET", "HEAD"] and body else None,
+                timeout=15.0
+            )
         duration = time.time() - start_time
-        logger.info(f"Jira Proxy: {request.method} {path} -> {resp.status_code} ({duration:.2f}s)")
+        logger.info(f"Jira Proxy: {path} -> {resp.status_code} ({duration:.2f}s)")
         
         return Response(
             content=resp.content,
             status_code=resp.status_code,
             headers={k: v for k, v in resp.headers.items() if k.lower() not in ["content-encoding", "transfer-encoding", "content-length"]}
         )
-    except requests.exceptions.Timeout:
+    except httpx.TimeoutException:
         logger.error(f"Jira Proxy: Request to {url} timed out")
         raise HTTPException(status_code=504, detail="Jira API request timed out (gateway timeout).")
     except Exception as e:
@@ -141,14 +141,15 @@ async def llm_proxy(provider: str, path: str, request: Request):
         
     try:
         start_time = time.time()
-        resp = requests.request(
-            method=request.method,
-            url=url,
-            headers=headers,
-            params=dict(request.query_params),
-            timeout=45, # LLMs need longer timeouts
-            **kwargs
-        )
+        async with httpx.AsyncClient() as client:
+            resp = await client.request(
+                method=request.method,
+                url=url,
+                headers=headers,
+                params=dict(request.query_params),
+                content=body if request.method not in ["GET", "HEAD"] and body else None,
+                timeout=45.0
+            )
         duration = time.time() - start_time
         logger.info(f"LLM Proxy ({provider}): {path} -> {resp.status_code} ({duration:.2f}s)")
         
@@ -157,7 +158,7 @@ async def llm_proxy(provider: str, path: str, request: Request):
             status_code=resp.status_code,
             headers={k: v for k, v in resp.headers.items() if k.lower() not in ["content-encoding", "transfer-encoding", "content-length"]}
         )
-    except requests.exceptions.Timeout:
+    except httpx.TimeoutException:
         logger.error(f"LLM Proxy ({provider}): Timeout for {url}")
         raise HTTPException(status_code=504, detail=f"LLM Provider ({provider}) request timed out.")
     except Exception as e:
