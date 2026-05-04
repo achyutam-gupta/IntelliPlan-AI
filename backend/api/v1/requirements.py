@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from schemas import RequirementAnalysisRequest, AnalysisResponse
+from backend.schemas import RequirementAnalysisRequest, AnalysisResponse
 import sys
 import os
 
