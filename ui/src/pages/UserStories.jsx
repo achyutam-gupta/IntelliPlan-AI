@@ -106,7 +106,16 @@ export default function UserStories() {
       const res = await fetch(`/api/v1/integrations/jira/rest/api/3/issue/${match[1]}`, {
         headers
       });
-      if (!res.ok) throw new Error(`Jira returned ${res.status}`);
+      if (!res.ok) {
+        let errorMsg = `Jira returned ${res.status}`;
+        try {
+          const errData = await res.json();
+          if (errData.errorMessages && errData.errorMessages.length > 0) {
+            errorMsg = `Jira Error: ${errData.errorMessages[0]}`;
+          }
+        } catch(e) {}
+        throw new Error(errorMsg);
+      }
       const data = await res.json();
       
       let descText = typeof data.fields.description === 'string' ? data.fields.description : JSON.stringify(data.fields.description);
